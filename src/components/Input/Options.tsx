@@ -1,23 +1,60 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import ToggleSwitch from './ToggleSwitch';
 
 type ToggleKeys = 'question' | 'academicInfo' | 'responseLog';
 
 interface OptionsProps {
-  toggleStates: { [key: string]: boolean };
+  toggleStates: { [key in ToggleKeys]: boolean };
   onToggleChange: (key: ToggleKeys) => void;
+  onClose?: () => void; // ✅ onClose를 props로 추가
+  setActiveCount: (count: number) => void;
 }
 
-const Options: React.FC<OptionsProps> = ({ toggleStates, onToggleChange }) => {
+const Options: React.FC<OptionsProps> = ({
+  toggleStates,
+  onToggleChange,
+  onClose,
+  setActiveCount,
+}) => {
+  const optionsRef = useRef<HTMLDivElement>(null); // ✅ Options 창을 감싸는 ref
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        optionsRef.current &&
+        !optionsRef.current.contains(event.target as Node)
+      ) {
+        onClose?.(); // ✅ 외부 클릭 시 onClose 실행
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onClose]); // ✅ 의존성 배열에 onClose 추가
+
+  useEffect(() => {
+    const activeCount = Object.values(toggleStates).filter(
+      (value) => value
+    ).length;
+    setActiveCount(activeCount);
+  }, [toggleStates, setActiveCount]);
+
   return (
-    <div className='w-80 px-6 py-5 bg-white rounded-lg shadow-[0px_0px_3px_0px_rgba(0,0,0,0.25)] inline-flex flex-col justify-center items-start gap-6'>
+    <div
+      ref={optionsRef} // ✅ ref 연결
+      className='w-80 px-6 py-5 bg-white rounded-lg shadow-md inline-flex flex-col justify-center items-start gap-6'
+    >
       <div className='justify-start text-black text-base font-bold'>옵션</div>
+
+      {/* 질문 토글 */}
       <div className='self-stretch flex flex-col justify-start items-start gap-2'>
         <div className='self-stretch inline-flex justify-center items-center gap-2.5'>
           <div className='justify-start text-neutral-400 text-xs font-medium'>
             질문
           </div>
-          <div className='flex-1 h-0 outline outline-1 outline-offset-[-0.50px] outline-neutral-400'></div>
+          <div className='flex-1 h-0 border border-neutral-400'></div>
         </div>
         <div className='self-stretch flex flex-col justify-start items-start gap-1.5'>
           <div className='self-stretch inline-flex justify-between items-center'>
@@ -31,12 +68,14 @@ const Options: React.FC<OptionsProps> = ({ toggleStates, onToggleChange }) => {
           </div>
         </div>
       </div>
+
+      {/* 응답 토글 */}
       <div className='self-stretch flex flex-col justify-start items-start gap-2'>
         <div className='self-stretch inline-flex justify-center items-center gap-2.5'>
-          <div className='justify-start text-neutral-400 text-xs font-semibold '>
+          <div className='justify-start text-neutral-400 text-xs font-semibold'>
             응답
           </div>
-          <div className='flex-1 h-0 outline outline-1 outline-offset-[-0.50px] outline-neutral-400'></div>
+          <div className='flex-1 h-0 border border-neutral-400'></div>
         </div>
         <div className='self-stretch flex flex-col justify-start items-start gap-1.5'>
           <div className='self-stretch inline-flex justify-between items-center'>
