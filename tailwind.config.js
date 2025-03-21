@@ -9,6 +9,7 @@ export default {
         mono_b: "#646464",
         mono_c: "#AAAAAA",
         mono_c_opacity_10: "#EEEEEE",
+        mono_e: "#EAEAEA",
         red_a: "#DA1616",
         blue_a: "#0364B3",
         blue_a_opacity_10: "#DDE7EF",
