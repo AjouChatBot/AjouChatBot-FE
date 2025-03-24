@@ -6,6 +6,7 @@ export default {
   theme: {
     extend: {
       colors: {
+        mono_a: "#000000",
         mono_b: "#646464",
         mono_c: "#AAAAAA",
         mono_c_opacity_10: "#EEEEEE",
@@ -13,8 +14,10 @@ export default {
         red_a: "#DA1616",
         blue_a: "#0364B3",
         blue_a_opacity_10: "#DDE7EF",
-        blue_b: "#c237DE5",
+        blue_b: "#237DE5",
+        blue_c: "#558FE8",
       },
+
       keyframes: {
         bounceDot: {
           "0%, 80%, 100%": { transform: "scale(0)", opacity: 0.3 },
