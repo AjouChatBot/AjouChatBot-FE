@@ -15,10 +15,6 @@ const MonthDateSelector: React.FC = () => {
     setMode('date');
   };
 
-  const handleBackToMonth = () => {
-    setMode('month');
-  };
-
   return (
     <div className='w-full flex flex-col'>
       {mode === 'month' ? (
@@ -30,12 +26,6 @@ const MonthDateSelector: React.FC = () => {
         />
       ) : (
         <>
-          <button
-            onClick={handleBackToMonth}
-            className='mb-4 text-sm text-blue_c hover:underline'
-          >
-            ← 월 선택으로 돌아가기
-          </button>
           <DateSelector
             year={selectedYear!}
             month={selectedMonth!}

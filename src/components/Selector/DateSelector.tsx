@@ -43,15 +43,15 @@ const DateSelector: React.FC<DateSelectorProps> = ({
 
   return (
     <div className='flex flex-col gap-5 w-full'>
-      <div className='flex flex-col w-full gap-3 mt-4 text-sm text-gray-700'>
+      <div className='flex flex-col w-full gap-3 text-sm text-gray-700'>
         <SelectedDateGroup
           startDate={selectedStart}
           endDate={selectedEnd}
-          direction='horizontal' // 외부 상태로 교체 가능
+          direction='vertical' // 외부 상태로 교체 가능
         />
       </div>
 
-      <div className='bg-white w-full flex justify-between gap-4 p-6 rounded-xl '>
+      <div className='bg-white w-full flex justify-between gap-4 p-6 rounded-2xl border border-mono_e '>
         <div className='flex flex-col justify-start items-start'>
           <h2 className='text-lg font-semibold mb-2 whitespace-nowrap'>
             {selectedStart ? '검색 종료일' : '검색 시작일'}

@@ -28,7 +28,7 @@ const MonthSelector: React.FC<MonthSelectorProps> = ({
   };
 
   return (
-    <div className=' w-full bg-white p-6 rounded-xl '>
+    <div className=' w-full bg-white p-6 rounded-2xl border border-mono_e '>
       <h2 className='text-lg font-semibold mb-2'>검색 시작 년도</h2>
 
       <div className='flex items-center gap-2 text-base text-mono_a mb-4'>
