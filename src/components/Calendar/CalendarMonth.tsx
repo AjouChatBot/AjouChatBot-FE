@@ -31,6 +31,11 @@ const CalendarMonth: React.FC<CalendarMonthProps> = ({
   const getDateObject = (day: number, offset: number = 0) =>
     new Date(year, month + offset, day);
 
+  const isDateInRange = (date: Date): boolean => {
+    if (!selectedStart || !selectedEnd) return false;
+    return date >= selectedStart && date <= selectedEnd;
+  };
+
   const days: {
     day: number;
     date: Date;
@@ -46,9 +51,9 @@ const CalendarMonth: React.FC<CalendarMonthProps> = ({
     days.push({
       day: prevDate.getDate(),
       date: prevDate,
-      isSelected: false,
-      isInRange: false,
-      isEndDate: false,
+      isSelected: selectedStart ? isSameDay(prevDate, selectedStart) : false,
+      isEndDate: selectedEnd ? isSameDay(prevDate, selectedEnd) : false,
+      isInRange: isDateInRange(prevDate),
       isNextMonth: true,
     });
   }
@@ -56,20 +61,12 @@ const CalendarMonth: React.FC<CalendarMonthProps> = ({
   // 이번 달 날짜
   for (let i = 1; i <= daysInMonth; i++) {
     const current = getDateObject(i, 0);
-    const isSelected = selectedStart && isSameDay(current, selectedStart);
-    const isEndDate = selectedEnd && isSameDay(current, selectedEnd);
-    const inRange =
-      selectedStart &&
-      selectedEnd &&
-      current > selectedStart &&
-      current < selectedEnd;
-
     days.push({
       day: i,
       date: current,
-      isSelected: !!isSelected,
-      isEndDate: !!isEndDate,
-      isInRange: !!inRange,
+      isSelected: selectedStart ? isSameDay(current, selectedStart) : false,
+      isEndDate: selectedEnd ? isSameDay(current, selectedEnd) : false,
+      isInRange: isDateInRange(current),
       isNextMonth: false,
     });
   }
@@ -81,9 +78,9 @@ const CalendarMonth: React.FC<CalendarMonthProps> = ({
     days.push({
       day: nextDate.getDate(),
       date: nextDate,
-      isSelected: false,
-      isInRange: false,
-      isEndDate: false,
+      isSelected: selectedStart ? isSameDay(nextDate, selectedStart) : false,
+      isEndDate: selectedEnd ? isSameDay(nextDate, selectedEnd) : false,
+      isInRange: isDateInRange(nextDate),
       isNextMonth: true,
     });
   }
