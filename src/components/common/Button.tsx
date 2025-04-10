@@ -1,5 +1,5 @@
 import React from 'react';
-import Icon from './Icons/Icon'; // 아이콘 컴포넌트 불러오기
+import Icon from '../Icons/Icon'; // 아이콘 컴포넌트 불러오기
 
 type ButtonProps = {
   color: 'gray' | 'grayline' | 'blue' | 'blueline' | 'red' | 'redline';
