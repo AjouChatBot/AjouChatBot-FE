@@ -1,18 +1,13 @@
-import ChatInput from './components/Chat/ChatInput';
+import React from 'react';
+import { Route, Routes } from 'react-router-dom';
+import Home from './pages/Home';
 
-function App() {
+const App: React.FC = () => {
   return (
-    <div className='w-full bg-[slate-300] flex justify-center bg-blue-50'>
-      <div className='w-full px-6 py-10 flex flex-col gap-6'>
-        <h1 className='text-2xl font-semibold text-gray-800'>
-          📅 ChatInput 테스트
-        </h1>
-
-        {/* <ChatInput mode='home' /> */}
-        <ChatInput mode='chat' />
-      </div>
-    </div>
+    <Routes>
+      <Route path='/home' element={<Home />} />
+    </Routes>
   );
-}
+};
 
 export default App;
