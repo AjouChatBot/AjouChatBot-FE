@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import Button from '../Button';
-import Tag from '../Tag';
-import Icon from '../Icons/Icon';
-import CheetoImage from './CheetoImage.png';
-import Options from '../Input/Options';
-import RecentTopics from './Search/RecentTopics';
-import MonthDateSelector from '../Selector/MonthDateSelector';
+import Button from '../../components/common/Button';
+// import Tag from '../Tag';
+import Icon from '../../components/Icons/Icon';
+import Options from '../../components/Input/Options';
+import RecentTopics from '../chat/search/RecentTopics';
+import MonthDateSelector from '../selector/MonthDateSelector';
+import { AccountInfo } from '../../types/account';
 
-const ChatInput: React.FC<{ mode: 'home' | 'chat' }> = ({ mode }) => {
+interface ChatInputProps {
+  mode: 'home' | 'chat';
+  onSend: (message: string) => void;
+  userInfo: AccountInfo | null;
+}
+
+const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend, userInfo }) => {
   const [message, setMessage] = useState('');
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [activeCount, setActiveCount] = useState(0);
@@ -35,10 +41,9 @@ const ChatInput: React.FC<{ mode: 'home' | 'chat' }> = ({ mode }) => {
   };
 
   const handleSend = () => {
-    if (message.trim() !== '') {
-      console.log('질문:', message);
-      setMessage('');
-    }
+    if (message.trim() === '') return;
+    onSend(message); // ChatPage로 메시지 보내기
+    setMessage('');
   };
 
   const toggleSearchMode = (mode: 'keyword' | 'date') => {
@@ -64,12 +69,12 @@ const ChatInput: React.FC<{ mode: 'home' | 'chat' }> = ({ mode }) => {
         searchMode === 'both'));
 
   return (
-    <div className='w-full flex min-w-0 flex-grow flex-col p-6 relative'>
+    <div className='w-full flex min-w-0 flex-grow flex-col relative'>
       {mode === 'home' && searchMode !== 'keyword' && searchMode !== 'both' && (
-        <div className='flex justify-between mb-6'>
-          <img src={CheetoImage} alt='cheeto icon' className='w-[220px]' />
+        <div className='flex justify-between'>
+          <img src='/CheetoImage.png' alt='cheeto icon' className='w-[220px]' />
           <div className='flex flex-col items-end justify-center text-2xl font-bold'>
-            <h3>ddd님, 돌아오신 걸 환영해요!</h3>
+            <h3>{userInfo?.name || '사용자'}님, 돌아오신 걸 환영해요!</h3>
             <h3>궁금하신 내용이 있나요?</h3>
           </div>
         </div>
@@ -86,7 +91,7 @@ const ChatInput: React.FC<{ mode: 'home' | 'chat' }> = ({ mode }) => {
         </div>
       )}
 
-      <div className='flex gap-6 mt-6'>
+      <div className='flex gap-6'>
         {/* 왼쪽: RecentTopics + textarea */}
         {(isKeywordActive || isTextareaVisible) && (
           <div className='flex-1 min-h-[166px] flex flex-col justify-between'>
@@ -96,7 +101,7 @@ const ChatInput: React.FC<{ mode: 'home' | 'chat' }> = ({ mode }) => {
               </div>
             )}
             {isTextareaVisible && (
-              <div className='w-full p-4 bg-white rounded-2xl border border-mono_e mt-2 h-full flex flex-col justify-between'>
+              <div className='w-full p-4 bg-white rounded-2xl border border-mono_e h-full flex flex-col justify-between'>
                 <textarea
                   className='w-full min-h-[118px] h-full p-3 text-sm border-none outline-none resize-none bg-transparent'
                   value={message}
@@ -111,10 +116,10 @@ const ChatInput: React.FC<{ mode: 'home' | 'chat' }> = ({ mode }) => {
                 />
                 <div className='mt-2 flex items-center gap-3'>
                   <span className='text-xs text-gray-500'>인식한 키워드</span>
-                  <div className='flex gap-2'>
+                  {/* <div className='flex gap-2'>
                     <Tag key='1' tagtext='#학기' />
                     <Tag key='2' tagtext='#개강' />
-                  </div>
+                  </div> */}
                 </div>
               </div>
             )}
