@@ -1,6 +1,8 @@
 export interface ChatMessage {
   sender: 'user' | 'bot';
   message: string;
+  isUser: boolean;
+  status?: 'inputted' | 'pending' | 'error';
 }
 
 export interface ChatPayload {
@@ -13,4 +15,4 @@ export interface StreamResponse {
   done: boolean;
 }
 
-export type StreamCallback = (response: StreamResponse) => void; 
+export type StreamCallback = (response: StreamResponse) => void;

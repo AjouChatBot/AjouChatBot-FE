@@ -1,46 +1,46 @@
 import { useEffect, useState } from 'react';
-import MainHeader from '../components/layout/MainHeader';
+import { useNavigate } from 'react-router-dom';
 import ChatInput from '../components/chat/ChatInput';
 import { getAccountInfo } from '../services/accountService';
 import { AccountInfo } from '../types/account';
+import Layout from '../components/layout/Layout';
+import { useChat } from '../contexts/ChatContext';
 
 const Home = () => {
   const [userInfo, setUserInfo] = useState<AccountInfo | null>(null);
+  const navigate = useNavigate();
+  const { handleSend } = useChat();
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
+    const loadUserInfo = async () => {
       try {
         const response = await getAccountInfo();
         setUserInfo(response.data);
       } catch (error) {
-        console.error('Failed to fetch user info:', error);
+        console.error('Failed to load user info:', error);
       }
     };
 
-    fetchUserInfo();
+    loadUserInfo();
   }, []);
 
-  const handleSend = (message: string) => {
-    console.log('Message sent:', message);
-    // TODO: Implement send message logic
+  const handleMessageSend = (message: string) => {
+    handleSend(message);
+    navigate('/chat');
   };
 
   return (
-    <div
-      className='min-h-screen w-full flex flex-col'
-      style={{
-        backgroundImage: 'url("/background.svg")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
-    >
-      <MainHeader userInfo={userInfo} />
+    <Layout>
       <div className='flex-grow flex justify-center'>
-        <div className='w-[1028px]'>
-          <ChatInput mode='home' onSend={handleSend} userInfo={userInfo} />
+        <div className='w-full'>
+          <ChatInput
+            mode='home'
+            onSend={handleMessageSend}
+            userInfo={userInfo}
+          />
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 
