@@ -15,24 +15,29 @@ const Layout = ({ children }: LayoutProps) => {
   const [userInfo, setUserInfo] = useState<AccountInfo | null>(null);
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
+    const loadUserInfo = async () => {
       try {
         const response = await getAccountInfo();
         setUserInfo(response.data);
       } catch (error) {
-        console.error('Failed to fetch user info:', error);
+        console.error('Failed to load user info:', error);
       }
     };
 
-    fetchUserInfo();
+    loadUserInfo();
   }, []);
 
   return (
-    <div className='min-h-screen flex flex-col px-6'>
+    <div
+      className='min-h-screen flex flex-col px-6'
+      style={{
+        backgroundImage: 'url("/background.svg")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
       {isHomePage ? <MainHeader userInfo={userInfo} /> : <SubHeader />}
-      <main className='flex-grow w-full max-w-screen-xl mx-auto'>
-        {children}
-      </main>
+      <main className='flex-grow'>{children}</main>
     </div>
   );
 };

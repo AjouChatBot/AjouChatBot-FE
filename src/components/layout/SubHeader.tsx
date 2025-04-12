@@ -1,14 +1,20 @@
 import Icon from '../Icons/Icon';
+import { useNavigate } from 'react-router-dom';
 
 const SubHeader = () => {
+  const navigate = useNavigate();
+
   return (
-    <div className='flex flex-grow items-start justify-between px-6'>
-      <div className='w-[1028px] relative inline-flex justify-between items-center'>
+    <div className='flex flex-grow items-start justify-between mt-[60px] mb-2'>
+      <div className='relative w-full flex justify-between items-center'>
         <div className='flex justify-start items-center gap-3'>
           <div className='w-12 h-12 relative flex justify-center items-center'>
             <div className='w-12 h-12 absolute bg-white rounded-2xl border border-gray-200' />
             <div className='relative z-10'>
-              <Icon name='leftarrowicon_gray' />
+              <Icon
+                name='leftarrowicon_gray'
+                onClick={() => navigate('/home')}
+              />
             </div>
           </div>
         </div>
