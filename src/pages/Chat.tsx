@@ -1,16 +1,49 @@
 import React from 'react';
-import ChatHistory from '../components/Chat/ChatHistory';
-import ChatInput from '../components/Chat/ChatInput';
-import { useChat } from '../hooks/useChat';
+import ChatInput from '../components/chat/ChatInput';
+import { useChat } from '../contexts/ChatContext';
+import { useAccount } from '../hooks/useAccount';
+import Layout from '../components/layout/Layout';
+import TalkArea from '../components/Chat/TalkArea';
 
 const ChatPage: React.FC = () => {
-  const { chatLogs, isBotTyping, handleSend } = useChat();
+  const { chatLogs, isBotTyping, handleSend, botMessage } = useChat();
+  const { userInfo } = useAccount();
 
   return (
-    <div className='flex flex-col w-full h-full'>
-      <ChatHistory chatLogs={chatLogs} isTyping={isBotTyping} />
-      <ChatInput onSend={handleSend} mode='chat' />
-    </div>
+    <Layout>
+      <div className='relative w-full h-screen flex flex-col'>
+        <div className='flex-1 overflow-y-auto pb-[180px] px-4 pt-4'>
+          <div className='w-full flex flex-col justify-between gap-4 px-[450px]'>
+            {chatLogs.map((log, index) => (
+              <div
+                key={index}
+                className={`flex ${
+                  log.isUser ? 'justify-end' : 'justify-start'
+                }`}
+              >
+                <TalkArea
+                  message={log.message}
+                  direction={log.isUser ? 'right' : 'left'}
+                  status={log.status}
+                />
+              </div>
+            ))}
+            {isBotTyping && (
+              <div className='flex justify-start'>
+                <TalkArea
+                  message={botMessage}
+                  direction='left'
+                  status='pending'
+                />
+              </div>
+            )}
+          </div>
+        </div>
+        <div className='w-full flex justify-center items-center fixed bottom-10 z-50'>
+          <ChatInput mode='chat' onSend={handleSend} userInfo={userInfo} />
+        </div>
+      </div>
+    </Layout>
   );
 };
 

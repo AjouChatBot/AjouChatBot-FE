@@ -1,8 +1,19 @@
-import { useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ChatMessage } from '../types/chat';
 import { sendMessageToChatbotStream } from '../services/chatService';
 
-export const useChat = () => {
+export interface ChatContextType {
+  chatLogs: ChatMessage[];
+  isBotTyping: boolean;
+  handleSend: (message: string) => Promise<void>;
+  botMessage: string;
+}
+
+const ChatContext = createContext<ChatContextType | undefined>(undefined);
+
+export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [chatLogs, setChatLogs] = useState<ChatMessage[]>([]);
   const [isBotTyping, setIsBotTyping] = useState(false);
   const [botMessage, setBotMessage] = useState<string>('');
@@ -14,12 +25,16 @@ export const useChat = () => {
     chunk: string;
     done: boolean;
   }) => {
-    const cleaned = partial
-      .replace(/data:/g, '')
-      .split('\n\n')
-      .filter((v) => v.length > 0);
-
-    setBotMessage((p) => p + cleaned);
+    try {
+      if (partial.trim()) {
+        const response = JSON.parse(partial);
+        if (response.data && response.data.bot_response) {
+          setBotMessage((p) => p + response.data.bot_response);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to parse response:', e);
+    }
 
     if (done) {
       setIsBotTyping(false);
@@ -77,9 +92,19 @@ export const useChat = () => {
     }
   };
 
-  return {
-    chatLogs,
-    isBotTyping,
-    handleSend,
-  };
+  return (
+    <ChatContext.Provider
+      value={{ chatLogs, isBotTyping, handleSend, botMessage }}
+    >
+      {children}
+    </ChatContext.Provider>
+  );
+};
+
+export const useChat = () => {
+  const context = useContext(ChatContext);
+  if (context === undefined) {
+    throw new Error('useChat must be used within a ChatProvider');
+  }
+  return context;
 };
