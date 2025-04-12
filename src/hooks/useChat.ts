@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ChatMessage } from '../types/chat';
 import { sendMessageToChatbotStream } from '../services/chatService';
 
@@ -39,6 +39,7 @@ export const useChat = () => {
         updated[lastIdx] = {
           sender: 'bot',
           message: botMessage,
+          isUser: false,
         };
       }
 
@@ -51,8 +52,8 @@ export const useChat = () => {
 
     setChatLogs((prev) => [
       ...prev,
-      { sender: 'user', message },
-      { sender: 'bot', message: '' },
+      { sender: 'user', message, isUser: true },
+      { sender: 'bot', message: '', isUser: false },
     ]);
 
     setIsBotTyping(true);
@@ -69,7 +70,7 @@ export const useChat = () => {
       console.error('Stream error:', err);
       setChatLogs((prev) => [
         ...prev,
-        { sender: 'bot', message: 'Error occurred' },
+        { sender: 'bot', message: 'Error occurred', isUser: false },
       ]);
     } finally {
       setIsBotTyping(false);
