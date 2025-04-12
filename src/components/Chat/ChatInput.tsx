@@ -69,9 +69,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend, userInfo }) => {
         searchMode === 'both'));
 
   return (
-    <div className='w-full flex min-w-0 flex-grow flex-col relative'>
+    <div className='w-full max-w-[1030px] flex flex-col relative justify-center items-center'>
       {mode === 'home' && searchMode !== 'keyword' && searchMode !== 'both' && (
-        <div className='flex justify-between'>
+        <div className='w-full flex flex-grow gap-40 justify-between'>
           <img src='/CheetoImage.png' alt='cheeto icon' className='w-[220px]' />
           <div className='flex flex-col items-end justify-center text-2xl font-bold'>
             <h3>{userInfo?.name || '사용자'}님, 돌아오신 걸 환영해요!</h3>
@@ -91,12 +91,12 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend, userInfo }) => {
         </div>
       )}
 
-      <div className='flex gap-6'>
+      <div className='w-full flex gap-6'>
         {/* 왼쪽: RecentTopics + textarea */}
         {(isKeywordActive || isTextareaVisible) && (
-          <div className='flex-1 min-h-[166px] flex flex-col justify-between'>
+          <div className='w-full min-h-[166px] flex flex-col justify-between'>
             {isKeywordActive && (
-              <div className='mb-4'>
+              <div className='w-full mb-4'>
                 <RecentTopics onSelect={(topic) => setMessage(topic)} />
               </div>
             )}
@@ -128,14 +128,14 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend, userInfo }) => {
 
         {/* 오른쪽: 날짜 검색 */}
         {isDateActive && (
-          <div className='flex-1'>
+          <div className='w-full'>
             <MonthDateSelector />
           </div>
         )}
       </div>
 
       {/* 하단 버튼 영역 */}
-      <div className='flex justify-between items-center mt-4'>
+      <div className='w-full flex justify-between items-center mt-4'>
         <div className='flex justify-start gap-4'>
           <div
             className='cursor-pointer flex justify-center items-center'

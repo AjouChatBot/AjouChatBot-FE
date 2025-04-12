@@ -11,15 +11,27 @@ const TalkArea: React.FC<TalkAreaProps> = ({
   direction = 'left',
   status = 'inputted',
 }) => {
+  const getBubbleStyle = () => {
+    let baseStyle =
+      'inline-block px-5 py-3 bg-white shadow-[0px_0px_3px_0px_rgba(3,100,179,0.25)]';
+    let directionStyle = '';
+
+    if (direction === 'left') {
+      directionStyle = 'rounded-tr-xl rounded-bl-xl rounded-br-xl';
+    } else {
+      directionStyle = 'rounded-tl-xl rounded-bl-xl rounded-br-xl';
+    }
+
+    return `${baseStyle} ${directionStyle}`;
+  };
+
   return (
     <div
       data-status={status}
       data-talk_direction={direction}
-      className='w-72 px-5 py-3 bg-white rounded-tr-xl rounded-bl-xl rounded-br-xl shadow-[0px_0px_3px_0px_rgba(3,100,179,0.25)]'
+      className={getBubbleStyle()}
     >
-      <div className="text-base font-['Noto_Sans_KR'] leading-loose">
-        {message}
-      </div>
+      <div className='text-base leading-loose'>{message}</div>
     </div>
   );
 };
