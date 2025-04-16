@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import Icon from '../components/Icons/Icon';
 import { useUser } from '../contexts/UserContext';
+import { getAccountInfo } from '../services/accountService';
 
 interface GoogleUser {
   email: string;
@@ -32,11 +33,23 @@ const Login = () => {
     console.log('로그인 실패');
   };
 
+  // useEffect(() => {
+  //   // 이미 로그인 되어 있다면 바로 home으로
+  //   const stored = localStorage.getItem('user');
+  //   if (stored) {
+  //     navigate('/home');
+  //   }
+  // }, []);
   useEffect(() => {
-    // 이미 로그인 되어 있다면 바로 home으로
     const stored = localStorage.getItem('user');
     if (stored) {
-      navigate('/home');
+      getAccountInfo()
+        .then(() => {
+          navigate('/home');
+        })
+        .catch(() => {
+          localStorage.removeItem('user');
+        });
     }
   }, []);
 
