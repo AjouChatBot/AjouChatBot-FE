@@ -1,13 +1,11 @@
 import React from 'react';
-import ChatInput from '../components/chat/ChatInput';
+import ChatInput from '../components/Chat/ChatInput';
 import { useChat } from '../contexts/ChatContext';
-import { useAccount } from '../hooks/useAccount';
 import Layout from '../components/layout/Layout';
 import TalkArea from '../components/Chat/TalkArea';
 
 const ChatPage: React.FC = () => {
   const { chatLogs, isBotTyping, handleSend, botMessage } = useChat();
-  const { userInfo } = useAccount();
 
   return (
     <Layout>
@@ -40,7 +38,7 @@ const ChatPage: React.FC = () => {
           </div>
         </div>
         <div className='w-full flex justify-center items-center fixed bottom-10 z-50'>
-          <ChatInput mode='chat' onSend={handleSend} userInfo={userInfo} />
+          <ChatInput mode='chat' onSend={handleSend} />
         </div>
       </div>
     </Layout>
