@@ -12,6 +12,7 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const isHomePage = location.pathname === '/home';
+  const isLoginPage = location.pathname === '/login';
   const [userInfo, setUserInfo] = useState<AccountInfo | null>(null);
 
   useEffect(() => {
@@ -31,12 +32,13 @@ const Layout = ({ children }: LayoutProps) => {
     <div
       className='min-h-screen flex flex-col px-6'
       style={{
-        backgroundImage: 'url("/background.svg")',
+        backgroundImage: `url("${isLoginPage ? '/loginbackground.svg' : '/background.svg'}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
     >
-      {isHomePage ? <MainHeader userInfo={userInfo} /> : <SubHeader />}
+      {!isLoginPage &&
+        (isHomePage ? <MainHeader userInfo={userInfo} /> : <SubHeader />)}
       <main className='flex-grow'>{children}</main>
     </div>
   );

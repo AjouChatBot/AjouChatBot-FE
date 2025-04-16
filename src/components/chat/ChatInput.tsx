@@ -5,15 +5,15 @@ import Icon from '../../components/Icons/Icon';
 import Options from '../../components/Input/Options';
 import RecentTopics from '../chat/search/RecentTopics';
 import MonthDateSelector from '../selector/MonthDateSelector';
-import { AccountInfo } from '../../types/account';
+import { useUser } from '../../contexts/UserContext';
 
 interface ChatInputProps {
   mode: 'home' | 'chat';
   onSend: (message: string) => void;
-  userInfo: AccountInfo | null;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend, userInfo }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
+  const { user } = useUser();
   const [message, setMessage] = useState('');
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [activeCount, setActiveCount] = useState(0);
@@ -74,7 +74,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend, userInfo }) => {
         <div className='w-full flex flex-grow gap-40 justify-between'>
           <img src='/CheetoImage.png' alt='cheeto icon' className='w-[220px]' />
           <div className='flex flex-col items-end justify-center text-2xl font-bold'>
-            <h3>{userInfo?.name || '사용자'}님, 돌아오신 걸 환영해요!</h3>
+            <h3>{user?.name || '사용자'}님, 돌아오신 걸 환영해요!</h3>
             <h3>궁금하신 내용이 있나요?</h3>
           </div>
         </div>

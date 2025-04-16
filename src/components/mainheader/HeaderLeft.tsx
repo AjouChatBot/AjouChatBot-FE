@@ -1,5 +1,5 @@
 import Icon from '../Icons/Icon';
-import TalkArea from '../Chat/TalkArea';
+import TalkArea from '../chat/TalkArea';
 
 const HeaderLeft = () => {
   return (
