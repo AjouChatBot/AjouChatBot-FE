@@ -31,13 +31,9 @@ const Home = () => {
 
   return (
     <Layout>
-      <div className='flex-grow flex justify-center'>
-        <div className='w-full'>
-          <ChatInput
-            mode='home'
-            onSend={handleMessageSend}
-            userInfo={userInfo}
-          />
+      <div className='flex-grow flex justify-center px-6'>
+        <div className='w-full max-w-6xl mx-auto'>
+          <ChatInput mode='home' onSend={handleMessageSend} />
         </div>
       </div>
     </Layout>
