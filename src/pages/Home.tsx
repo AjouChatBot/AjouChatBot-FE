@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ChatInput from '../components/chat/ChatInput';
+import ChatInput from '../components/Chat/ChatInput';
 import { getAccountInfo } from '../services/accountService';
 import { AccountInfo } from '../types/account';
 import Layout from '../components/layout/Layout';
