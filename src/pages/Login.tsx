@@ -55,12 +55,12 @@ const Login = () => {
 
   return (
     <Layout>
-      <div className='min-h-screen flex items-center justify-center gap-[200px]'>
-        <div className='ml-[210px]'>
+      <div className='flex flex-roww-full h-full'>
+        <div className='flex-1 flex flex-col justify-center items-center'>
           <Icon name='mainlogo_login' size={256} />
           <Icon name='amatetext' size={197} />
         </div>
-        <div className='flex flex-col items-center'>
+        <div className='flex-1 flex flex-col justify-center items-center'>
           <Icon name='loginchatimage' size={516} />
           <div className='w-[516px] h-[80px]'>
             <GoogleLogin
