@@ -11,32 +11,36 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
-  const isHomePage = location.pathname === '/home';
-  const isLoginPage = location.pathname === '/login';
+  const pathname = location.pathname;
+  const isHomePage = pathname === '/home';
+  const isLoginPage = pathname === '/login';
   const [userInfo, setUserInfo] = useState<AccountInfo | null>(null);
 
   useEffect(() => {
-    const loadUserInfo = async () => {
-      try {
-        const response = await getAccountInfo();
-        setUserInfo(response.data);
-      } catch (error) {
-        console.error('Failed to load user info:', error);
-      }
-    };
+    if (!isLoginPage) {
+      const loadUserInfo = async () => {
+        try {
+          const response = await getAccountInfo();
+          setUserInfo(response.data);
+        } catch (error) {
+          console.error('Failed to load user info:', error);
+        }
+      };
 
-    loadUserInfo();
-  }, []);
+      loadUserInfo();
+    }
+  }, [isLoginPage]);
 
   return (
     <div
-      className='min-h-screen flex flex-col px-6'
+      className='w-screen h-screen flex flex-col px-6'
       style={{
         backgroundImage: `url("${isLoginPage ? '/loginbackground.svg' : '/background.svg'}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
     >
+      {/* /login 페이지가 아니면 헤더 표시 */}
       {!isLoginPage &&
         (isHomePage ? <MainHeader userInfo={userInfo} /> : <SubHeader />)}
       <main className='flex-grow'>{children}</main>

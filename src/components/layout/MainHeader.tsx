@@ -2,15 +2,21 @@ import React from 'react';
 import { AccountInfo } from '../../types/account';
 import HeaderLeft from '../mainheader/HeaderLeft';
 import HeaderRight from '../mainheader/HeaderRight';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../contexts/UserContext';
 
 interface MainHeaderProps {
   userInfo: AccountInfo | null;
 }
 
 const MainHeader: React.FC<MainHeaderProps> = ({ userInfo }) => {
+  const navigate = useNavigate();
+  const { setUser } = useUser();
+
   const handleLogout = () => {
-    // TODO: Implement logout logic
-    console.log('Logout clicked');
+    localStorage.removeItem('user');
+    setUser(null);
+    navigate('/login');
   };
 
   if (!userInfo) {

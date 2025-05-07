@@ -3,13 +3,14 @@ import Button from '../../components/common/Button';
 // import Tag from '../Tag';
 import Icon from '../../components/Icons/Icon';
 import Options from '../../components/Input/Options';
-import RecentTopics from '../chat/search/RecentTopics';
-import MonthDateSelector from '../selector/MonthDateSelector';
-import { useUser } from '../../contexts/UserContext';
+import RecentTopics from '../Chat/Search/RecentTopics';
+import MonthDateSelector from '../Selector/MonthDateSelector';
+import { AccountInfo } from '../../types/account';
 
 interface ChatInputProps {
   mode: 'home' | 'chat';
   onSend: (message: string) => void;
+  userInfo?: AccountInfo | null;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {

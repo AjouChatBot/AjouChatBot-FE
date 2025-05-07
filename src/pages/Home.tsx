@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ChatInput from '../components/chat/ChatInput';
+import ChatInput from '../components/Chat/ChatInput';
 import { getAccountInfo } from '../services/accountService';
 import { AccountInfo } from '../types/account';
 import Layout from '../components/layout/Layout';
@@ -31,9 +31,13 @@ const Home = () => {
 
   return (
     <Layout>
-      <div className='flex-grow flex justify-center px-6'>
-        <div className='w-full max-w-6xl mx-auto'>
-          <ChatInput mode='home' onSend={handleMessageSend} />
+      <div className='flex justify-center items-center w-full h-full px-4'>
+        <div className='max-w-[800px]w-full'>
+          <ChatInput
+            mode='home'
+            onSend={handleMessageSend}
+            userInfo={userInfo}
+          />
         </div>
       </div>
     </Layout>

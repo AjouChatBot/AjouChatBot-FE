@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import Icon from '../components/Icons/Icon';
 import { useUser } from '../contexts/UserContext';
+import { getAccountInfo } from '../services/accountService';
 
 interface GoogleUser {
   email: string;
@@ -32,22 +33,34 @@ const Login = () => {
     console.log('로그인 실패');
   };
 
+  // useEffect(() => {
+  //   // 이미 로그인 되어 있다면 바로 home으로
+  //   const stored = localStorage.getItem('user');
+  //   if (stored) {
+  //     navigate('/home');
+  //   }
+  // }, []);
   useEffect(() => {
-    // 이미 로그인 되어 있다면 바로 home으로
     const stored = localStorage.getItem('user');
     if (stored) {
-      navigate('/home');
+      getAccountInfo()
+        .then(() => {
+          navigate('/home');
+        })
+        .catch(() => {
+          localStorage.removeItem('user');
+        });
     }
   }, []);
 
   return (
     <Layout>
-      <div className='min-h-screen flex items-center justify-center gap-[200px]'>
-        <div className='ml-[210px]'>
+      <div className='flex flex-roww-full h-full'>
+        <div className='flex-1 flex flex-col justify-center items-center'>
           <Icon name='mainlogo_login' size={256} />
           <Icon name='amatetext' size={197} />
         </div>
-        <div className='flex flex-col items-center'>
+        <div className='flex-1 flex flex-col justify-center items-center'>
           <Icon name='loginchatimage' size={516} />
           <div className='w-[516px] h-[80px]'>
             <GoogleLogin
