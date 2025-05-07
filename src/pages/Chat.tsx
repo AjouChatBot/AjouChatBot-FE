@@ -1,8 +1,8 @@
 import React from 'react';
-import ChatInput from '../components/Chat/ChatInput';
+import ChatInput from '../components/chat/ChatInput';
 import { useChat } from '../contexts/ChatContext';
 import Layout from '../components/layout/Layout';
-import TalkArea from '../components/Chat/TalkArea';
+import TalkArea from '../components/chat/TalkArea';
 
 const ChatPage: React.FC = () => {
   const { chatLogs, isBotTyping, handleSend, botMessage } = useChat();

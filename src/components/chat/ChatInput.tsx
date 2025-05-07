@@ -3,9 +3,10 @@ import Button from '../../components/common/Button';
 // import Tag from '../Tag';
 import Icon from '../../components/Icons/Icon';
 import Options from '../../components/Input/Options';
-import RecentTopics from '../Chat/Search/RecentTopics';
-import MonthDateSelector from '../Selector/MonthDateSelector';
+import RecentTopics from '../chat/search/RecentTopics';
+import MonthDateSelector from '../selector/MonthDateSelector';
 import { AccountInfo } from '../../types/account';
+import { useUser } from '../../contexts/UserContext';
 
 interface ChatInputProps {
   mode: 'home' | 'chat';
