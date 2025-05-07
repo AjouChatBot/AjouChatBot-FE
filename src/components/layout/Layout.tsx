@@ -35,7 +35,7 @@ const Layout = ({ children }: LayoutProps) => {
     <div
       className='w-screen h-screen flex flex-col px-6'
       style={{
-        backgroundImage: 'url("/background.svg")',
+        backgroundImage: `url("${isLoginPage ? '/loginbackground.svg' : '/background.svg'}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
