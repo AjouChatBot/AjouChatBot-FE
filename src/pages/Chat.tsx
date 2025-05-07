@@ -9,15 +9,15 @@ const ChatPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className='relative w-full h-screen flex flex-col'>
-        <div className='flex-1 overflow-y-auto pb-[180px] px-4 pt-4'>
-          <div className='w-full flex flex-col justify-between gap-4 px-[450px]'>
+      {/* 전체 영역을 정확히 분할 */}
+      <div className='flex flex-col w-screen h-screen'>
+        {/* 메시지 영역 (스크롤 가능) */}
+        <div className='flex-1 overflow-y-auto px-8 pt-6 pb-2'>
+          <div className='w-full max-w-[1200px] mx-auto flex flex-col gap-4'>
             {chatLogs.map((log, index) => (
               <div
                 key={index}
-                className={`flex ${
-                  log.isUser ? 'justify-end' : 'justify-start'
-                }`}
+                className={`flex ${log.isUser ? 'justify-end' : 'justify-start'}`}
               >
                 <TalkArea
                   message={log.message}
@@ -37,8 +37,12 @@ const ChatPage: React.FC = () => {
             )}
           </div>
         </div>
-        <div className='w-full flex justify-center items-center fixed bottom-10 z-50'>
-          <ChatInput mode='chat' onSend={handleSend} />
+
+        {/* 입력창 (시각적으로 띄우기 + 높이 차지) */}
+        <div className='w-full px-8 pb-60 pt-4'>
+          <div className='max-w-[1200px] mx-auto'>
+            <ChatInput mode='chat' onSend={handleSend} />
+          </div>
         </div>
       </div>
     </Layout>
