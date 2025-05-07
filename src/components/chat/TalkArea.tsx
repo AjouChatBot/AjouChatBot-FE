@@ -12,7 +12,7 @@ const TalkArea: React.FC<TalkAreaProps> = ({
   status = 'inputted',
 }) => {
   const getBubbleStyle = () => {
-    let baseStyle =
+    const baseStyle =
       'inline-block px-5 py-3 bg-white shadow-[0px_0px_3px_0px_rgba(3,100,179,0.25)]';
     let directionStyle = '';
 
