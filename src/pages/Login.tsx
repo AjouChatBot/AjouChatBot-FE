@@ -1,5 +1,4 @@
 // src/pages/Login.tsx
-import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
@@ -7,6 +6,7 @@ import Layout from '../components/layout/Layout';
 import Icon from '../components/Icons/Icon';
 import { useUser } from '../contexts/UserContext';
 import { getAccountInfo } from '../services/accountService';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 
 interface GoogleUser {
   email: string;
@@ -19,7 +19,7 @@ const Login = () => {
   const navigate = useNavigate();
   const { setUser } = useUser();
 
-  const handleLoginSuccess = (credentialResponse: any) => {
+  const handleLoginSuccess = (credentialResponse: CredentialResponse) => {
     if (credentialResponse.credential) {
       const decoded: GoogleUser = jwtDecode(credentialResponse.credential);
       setUser(decoded);
