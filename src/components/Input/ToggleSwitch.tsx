@@ -6,18 +6,23 @@ interface ToggleProps {
 }
 
 const ToggleSwitch: React.FC<ToggleProps> = ({ isOn, onToggle }) => {
+  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    onToggle();
+  };
+
   return (
     <div
-      className={`flex items-center cursor-pointer p-1 rounded-lg w-14 h-8 transition-all duration-300 ${
+      className={`relative flex items-center cursor-pointer rounded-lg w-14 h-8 px-1 transition-colors duration-300 ${
         isOn ? 'bg-blue_a_opacity_10' : 'bg-mono_c_opacity_10'
       }`}
-      onClick={onToggle}
+      onClick={handleClick}
     >
       <div
-        className={`w-6 h-6 rounded-lg transform transition-all duration-300 ${
-          isOn ? 'bg-blue_a translate-x-6' : 'bg-mono_c'
+        className={`absolute left-1 top-1 w-6 h-6 rounded-lg transition-transform duration-300 ${
+          isOn ? 'translate-x-6 bg-blue_a' : 'translate-x-0 bg-mono_c'
         }`}
-      ></div>
+      />
     </div>
   );
 };
