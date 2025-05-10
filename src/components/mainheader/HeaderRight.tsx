@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Icon from '../Icons/Icon';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
@@ -50,7 +50,10 @@ const HeaderRight = () => {
       {isMenuOpen && (
         <div className='absolute right-0 top-[calc(100%+8px)] p-3.5 bg-white rounded-2xl outline outline-1 outline-offset-[-1px] outline-gray-200 shadow-sm z-50'>
           <div className='px-3 py-1'>
-            <div className='flex items-center gap-4'>
+            <div
+              className='flex items-center gap-4'
+              onClick={() => navigate('/setting')}
+            >
               <Icon name='setting' />
               <div className='text-base font-medium'>설정</div>
             </div>
