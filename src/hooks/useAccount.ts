@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAccountInfo } from '../services/accountService';
+import { getAccountInfo } from '../services/authService';
 import { AccountInfo } from '../types/account';
 
 export const useAccount = () => {

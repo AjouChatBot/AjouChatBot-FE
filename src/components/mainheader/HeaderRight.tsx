@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Icon from '../Icons/Icon';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
@@ -22,6 +22,8 @@ const HeaderRight = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     setUser(null);
     navigate('/login');
   };
@@ -42,7 +44,7 @@ const HeaderRight = () => {
         </div>
         <img
           className='w-12 h-12 rounded-2xl border border-gray-200'
-          src={user.picture}
+          src={user.profile_image}
           alt={`${user.name}의 프로필 이미지`}
         />
       </div>
