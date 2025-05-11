@@ -52,7 +52,7 @@ const HeaderRight = () => {
           <div className='px-3 py-1'>
             <div
               className='flex items-center gap-4'
-              onClick={() => navigate('/setting')}
+              onClick={() => navigate('/setting/account')}
             >
               <Icon name='setting' />
               <div className='text-base font-medium'>설정</div>

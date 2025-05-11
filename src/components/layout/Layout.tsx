@@ -12,8 +12,15 @@ interface LayoutProps {
 const Layout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const pathname = location.pathname;
-  const isHomePage = pathname === '/home';
   const isLoginPage = pathname === '/login';
+  const isSettingPage = pathname.startsWith('/setting');
+
+  const isMainHeaderPage =
+    pathname === '/home' ||
+    pathname === '/setting/account' ||
+    pathname === '/setting/academic' ||
+    pathname === '/setting/chat';
+
   const [userInfo, setUserInfo] = useState<AccountInfo | null>(null);
 
   useEffect(() => {
@@ -31,18 +38,23 @@ const Layout = ({ children }: LayoutProps) => {
     }
   }, [isLoginPage]);
 
+  const backgroundImageUrl = isLoginPage
+    ? '/loginbackground.svg'
+    : isSettingPage
+      ? '/settingbackground.svg'
+      : '/background.svg';
+
   return (
     <div
       className='w-screen h-screen flex flex-col px-6'
       style={{
-        backgroundImage: `url("${isLoginPage ? '/loginbackground.svg' : '/background.svg'}")`,
+        backgroundImage: `url("${backgroundImageUrl}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
     >
-      {/* /login 페이지가 아니면 헤더 표시 */}
       {!isLoginPage &&
-        (isHomePage ? <MainHeader userInfo={userInfo} /> : <SubHeader />)}
+        (isMainHeaderPage ? <MainHeader userInfo={userInfo} /> : <SubHeader />)}
       <main className='flex-grow'>{children}</main>
     </div>
   );
