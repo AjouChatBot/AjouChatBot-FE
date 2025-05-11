@@ -1,31 +1,33 @@
 // src/pages/Login.tsx
-import { jwtDecode } from 'jwt-decode';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import Icon from '../components/Icons/Icon';
 import { useUser } from '../contexts/UserContext';
-import { getAccountInfo } from '../services/accountService';
-import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
-
-interface GoogleUser {
-  email: string;
-  name: string;
-  picture: string;
-  sub: string; // Google unique user ID
-}
+import { loginWithGoogle } from '../services/authService';
 
 const Login = () => {
   const navigate = useNavigate();
   const { setUser } = useUser();
 
-  const handleLoginSuccess = (credentialResponse: CredentialResponse) => {
+  const handleLoginSuccess = async (credentialResponse: CredentialResponse) => {
     if (credentialResponse.credential) {
-      const decoded: GoogleUser = jwtDecode(credentialResponse.credential);
-      setUser(decoded);
-      localStorage.setItem('user', JSON.stringify(decoded));
-      console.log('로그인 성공:', decoded);
-      navigate('/home');
+      try {
+        const res = await loginWithGoogle(credentialResponse.credential);
+        const { access_token, refresh_token, ...userInfo } = res.data;
+
+        // 토큰 저장
+        localStorage.setItem('access_token', access_token);
+        localStorage.setItem('refresh_token', refresh_token);
+        localStorage.setItem('user', JSON.stringify(userInfo));
+
+        setUser(userInfo);
+        console.log('로그인 성공:', userInfo);
+        navigate('/home');
+      } catch (err) {
+        console.error('로그인 실패:', err);
+      }
     }
   };
 
@@ -33,29 +35,16 @@ const Login = () => {
     console.log('로그인 실패');
   };
 
-  // useEffect(() => {
-  //   // 이미 로그인 되어 있다면 바로 home으로
-  //   const stored = localStorage.getItem('user');
-  //   if (stored) {
-  //     navigate('/home');
-  //   }
-  // }, []);
   useEffect(() => {
     const stored = localStorage.getItem('user');
     if (stored) {
-      getAccountInfo()
-        .then(() => {
-          navigate('/home');
-        })
-        .catch(() => {
-          localStorage.removeItem('user');
-        });
+      navigate('/home');
     }
   }, []);
 
   return (
     <Layout>
-      <div className='flex flex-roww-full h-full'>
+      <div className='flex flex-row w-full h-full'>
         <div className='flex-1 flex flex-col justify-center items-center'>
           <Icon name='mainlogo_login' size={256} />
           <Icon name='amatetext' size={197} />

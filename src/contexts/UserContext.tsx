@@ -1,11 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-
-interface User {
-  email: string;
-  name: string;
-  picture: string;
-  sub: string;
-}
+import { User } from '../types/user';
 
 interface UserContextType {
   user: User | null;
@@ -23,10 +17,14 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    // Check localStorage for existing user data
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      try {
+        const parsedUser: User = JSON.parse(stored);
+        setUser(parsedUser);
+      } catch {
+        localStorage.removeItem('user');
+      }
     }
   }, []);
 
