@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import axios, { AxiosResponse } from 'axios';
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;

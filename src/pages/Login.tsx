@@ -1,6 +1,5 @@
 // src/pages/Login.tsx
-import { GoogleLogin } from '@react-oauth/google';
-import { CredentialResponse } from '@react-oauth/google';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import Layout from '../components/layout/Layout';

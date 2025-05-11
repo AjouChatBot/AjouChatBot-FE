@@ -4,6 +4,7 @@ import Chat from './pages/Chat';
 import Login from './pages/Login';
 import { ChatProvider } from './contexts/ChatContext';
 import { UserProvider } from './contexts/UserContext';
+import Setting from './pages/Setting';
 
 const App = () => {
   return (
@@ -13,6 +14,7 @@ const App = () => {
           <Route path='/home' element={<Home />} />
           <Route path='/chat' element={<Chat />} />
           <Route path='/login' element={<Login />} />
+          <Route path='/setting' element={<Setting />} />
         </Routes>
       </ChatProvider>
     </UserProvider>
