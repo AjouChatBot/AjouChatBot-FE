@@ -1,78 +1,70 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../../components/common/Button';
-// import Tag from '../Tag';
 import Icon from '../../components/Icons/Icon';
 import Options from '../../components/Input/Options';
 import RecentTopics from '../chat/search/RecentTopics';
 import MonthDateSelector from '../selector/MonthDateSelector';
-import { AccountInfo } from '../../types/account';
 import { useUser } from '../../contexts/UserContext';
+import TypingDots from './TypingDots';
 
 interface ChatInputProps {
   mode: 'home' | 'chat';
   onSend: (message: string) => void;
-  userInfo?: AccountInfo | null;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
   const { user } = useUser();
+
   const [message, setMessage] = useState('');
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [activeCount, setActiveCount] = useState(0);
   const [searchMode, setSearchMode] = useState<
     'none' | 'keyword' | 'date' | 'both'
   >('none');
-
-  useEffect(() => {
-    const root = document.getElementById('root');
-    if (root) root.classList.add('w-full');
-  }, []);
-
   const [toggleStates, setToggleStates] = useState({
     question: true,
     academicInfo: false,
     responseLog: true,
   });
 
-  useEffect(() => {
-    setActiveCount(Object.values(toggleStates).filter(Boolean).length);
-  }, [toggleStates]);
-
-  const onToggleChange = (key: 'question' | 'academicInfo' | 'responseLog') => {
-    setToggleStates((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const handleSend = () => {
-    if (message.trim() === '') return;
-    onSend(message); // ChatPage로 메시지 보내기
-    setMessage('');
-  };
-
-  const toggleSearchMode = (mode: 'keyword' | 'date') => {
-    setSearchMode((prev) => {
-      if (prev === 'both') return mode === 'keyword' ? 'date' : 'keyword';
-      if (prev === mode) return 'none';
-      if (
-        (prev === 'keyword' && mode === 'date') ||
-        (prev === 'date' && mode === 'keyword')
-      )
-        return 'both';
-      return mode;
-    });
-  };
-
   const isKeywordActive = searchMode === 'keyword' || searchMode === 'both';
   const isDateActive = searchMode === 'date' || searchMode === 'both';
   const isTextareaVisible =
     (mode === 'home' && !isDateActive) ||
-    (mode === 'chat' &&
-      (searchMode === 'none' ||
-        searchMode === 'keyword' ||
-        searchMode === 'both'));
+    (mode === 'chat' && (searchMode === 'none' || isKeywordActive));
+
+  useEffect(() => {
+    setActiveCount(Object.values(toggleStates).filter(Boolean).length);
+  }, [toggleStates]);
+
+  const handleToggle = (key: keyof typeof toggleStates) => {
+    setToggleStates((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  const handleSend = () => {
+    if (!message.trim()) return;
+    onSend(message);
+    setMessage('');
+  };
+
+  const toggleSearchMode = (targetMode: 'keyword' | 'date') => {
+    setSearchMode((prev) => {
+      if (mode === 'home') {
+        return prev === targetMode ? 'none' : targetMode;
+      }
+
+      if (prev === 'none') return targetMode;
+      if (prev === targetMode) return 'none';
+      if (prev === 'both') return targetMode === 'keyword' ? 'date' : 'keyword';
+      if (prev !== targetMode) return 'both';
+
+      return prev;
+    });
+  };
 
   return (
-    <div className='w-full max-w-[1030px] flex flex-col relative justify-center items-center'>
-      {mode === 'home' && searchMode !== 'keyword' && searchMode !== 'both' && (
+    <div className='w-full  flex flex-col relative justify-center items-center'>
+      {mode === 'home' && !isKeywordActive && (
         <div className='w-full flex flex-grow gap-40 justify-between'>
           <img src='/CheetoImage.png' alt='cheeto icon' className='w-[220px]' />
           <div className='flex flex-col items-end justify-center text-2xl font-bold'>
@@ -86,15 +78,18 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
         <div className='absolute top-16 left-6 w-64 z-50 bg-white border border-gray-300 rounded-lg shadow-lg'>
           <Options
             toggleStates={toggleStates}
-            onToggleChange={onToggleChange}
+            onToggleChange={handleToggle}
             onClose={() => setIsOptionsOpen(false)}
             setActiveCount={setActiveCount}
           />
         </div>
       )}
 
-      <div className='w-full flex gap-6'>
-        {/* 왼쪽: RecentTopics + textarea */}
+      <div
+        className='w-full flex gap-6 justify-center
+      
+      '
+      >
         {(isKeywordActive || isTextareaVisible) && (
           <div className='w-full min-h-[166px] flex flex-col justify-between'>
             {isKeywordActive && (
@@ -118,17 +113,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
                 />
                 <div className='mt-2 flex items-center gap-3'>
                   <span className='text-xs text-gray-500'>인식한 키워드</span>
-                  {/* <div className='flex gap-2'>
-                    <Tag key='1' tagtext='#학기' />
-                    <Tag key='2' tagtext='#개강' />
-                  </div> */}
+                  {message.trim().length > 0 && <TypingDots />}
                 </div>
               </div>
             )}
           </div>
         )}
 
-        {/* 오른쪽: 날짜 검색 */}
         {isDateActive && (
           <div className='w-full'>
             <MonthDateSelector />
@@ -136,7 +127,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
         )}
       </div>
 
-      {/* 하단 버튼 영역 */}
       <div className='w-full flex justify-between items-center mt-4'>
         <div className='flex justify-start gap-4'>
           <div
@@ -149,6 +139,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
             {activeCount}개 활성화됨
           </p>
         </div>
+
         <div className='flex gap-4 justify-end items-center'>
           <div
             onClick={() => toggleSearchMode('keyword')}
