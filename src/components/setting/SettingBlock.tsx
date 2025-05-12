@@ -26,7 +26,7 @@ const SettingBlock: React.FC<SettingBlockProps> = ({
 }) => {
   return (
     <div
-      className={`w-full px-4 py-4 bg-white rounded-xl flex items-center justify-between cursor-pointer ${
+      className={`w-full px-4 py-4 bg-white bg-opacity-50 rounded-xl flex items-center justify-between cursor-pointer ${
         disabled ? 'opacity-40 pointer-events-none' : ''
       } ${danger ? 'text-red-500' : ''}`}
       onClick={onClick}
