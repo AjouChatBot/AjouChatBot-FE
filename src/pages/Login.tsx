@@ -1,28 +1,37 @@
 // src/pages/Login.tsx
+
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import Layout from '../components/layout/Layout';
 import Icon from '../components/Icons/Icon';
 import { useUser } from '../contexts/UserContext';
 import { loginWithGoogle } from '../services/authService';
+import { getAccountInfo } from '../services/accountService';
 
 const Login = () => {
   const navigate = useNavigate();
   const { setUser } = useUser();
+  const loginInProgressRef = useRef(false);
 
   const handleLoginSuccess = async (credentialResponse: CredentialResponse) => {
+    if (loginInProgressRef.current) return;
+    loginInProgressRef.current = true;
+
     if (credentialResponse.credential) {
       try {
-        const res = await loginWithGoogle(credentialResponse.credential);
-        const { access_token, refresh_token, ...userInfo } = res.data;
+        const loginRes = await loginWithGoogle(credentialResponse.credential);
+        const { access_token, refresh_token } = loginRes.data;
 
-        // 토큰 저장
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('refresh_token', refresh_token);
-        localStorage.setItem('user', JSON.stringify(userInfo));
 
+        const response = await getAccountInfo(); // MeResponse
+        const userInfo = response.data; // User
+
+        localStorage.setItem('user', JSON.stringify(userInfo));
         setUser(userInfo);
+
         console.log('로그인 성공:', userInfo);
         navigate('/home');
       } catch (err) {
