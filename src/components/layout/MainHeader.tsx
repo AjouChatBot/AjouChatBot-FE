@@ -1,32 +1,29 @@
 import React from 'react';
-import { AccountInfo } from '../../types/account';
 import HeaderLeft from '../mainheader/HeaderLeft';
 import HeaderRight from '../mainheader/HeaderRight';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
 
-interface MainHeaderProps {
-  userInfo: AccountInfo | null;
-}
-
-const MainHeader: React.FC<MainHeaderProps> = ({ userInfo }) => {
+const MainHeader: React.FC = () => {
   const navigate = useNavigate();
-  const { setUser } = useUser();
+  const { user, setUser } = useUser();
 
   const handleLogout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
     setUser(null);
     navigate('/login');
   };
 
-  if (!userInfo) {
+  if (!user) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className='flex flex-grow items-start justify-between px-6'>
+    <div className='flex items-start justify-between px-6'>
       <HeaderLeft />
-      <HeaderRight userInfo={userInfo} onLogout={handleLogout} />
+      <HeaderRight userInfo={user} onLogout={handleLogout} />
     </div>
   );
 };

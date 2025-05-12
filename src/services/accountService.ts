@@ -1,8 +1,7 @@
+import { MeResponse } from '../types/user';
 import apiClient from './apiClient';
-import { AccountResponse } from '../types/account';
 
-export const getAccountInfo = async (): Promise<AccountResponse> => {
-  const res = await apiClient.get<AccountResponse>('/account/info');
+export const getAccountInfo = async (): Promise<MeResponse> => {
+  const res = await apiClient.get<MeResponse>('/account/info');
   return res.data;
-
 };

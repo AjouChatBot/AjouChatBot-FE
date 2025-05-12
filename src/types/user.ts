@@ -1,28 +1,34 @@
-// 로그인 후 Context에 저장될 최소 정보
-export interface User {
+// types/user.ts
+
+// 로그인 후 저장될 기본 정보
+export interface BasicUser {
   user_id: number;
   name: string;
   email: string;
   profile_image: string;
 }
 
-// 로그인 응답 타입
+// 전체 사용자 정보 (모든 컴포넌트/페이지에서 이걸 쓰게 됨)
+export interface User extends BasicUser {
+  phone: string;
+  department: string;
+  college: string;
+  major: string;
+  grade: number;
+}
+
+// 로그인 응답
 export interface LoginResponse {
   status: string;
   message: string;
-  data: User & {
+  data: BasicUser & {
     access_token: string;
     refresh_token: string;
   };
 }
 
-// /auth/me 응답 타입
+// /auth/me 또는 /auth/account 응답
 export interface MeResponse {
   status: string;
-  data: User & {
-    department: string;
-    college: string;
-    major: string;
-    grade: number;
-  };
+  data: User;
 }
