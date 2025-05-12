@@ -1,9 +1,7 @@
-import { ReactNode, useEffect, useState } from 'react';
+import { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import MainHeader from './MainHeader';
 import SubHeader from './SubHeader';
-import { getAccountInfo } from '../../services/accountService';
-import { AccountInfo } from '../../types/account';
 
 interface LayoutProps {
   children: ReactNode;
@@ -21,23 +19,6 @@ const Layout = ({ children }: LayoutProps) => {
     pathname === '/setting/academic' ||
     pathname === '/setting/chat';
 
-  const [userInfo, setUserInfo] = useState<AccountInfo | null>(null);
-
-  useEffect(() => {
-    if (!isLoginPage) {
-      const loadUserInfo = async () => {
-        try {
-          const response = await getAccountInfo();
-          setUserInfo(response.data);
-        } catch (error) {
-          console.error('Failed to load user info:', error);
-        }
-      };
-
-      loadUserInfo();
-    }
-  }, [isLoginPage]);
-
   const backgroundImageUrl = isLoginPage
     ? '/loginbackground.svg'
     : isSettingPage
@@ -46,16 +27,15 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div
-      className='w-screen h-screen flex flex-col px-6'
+      className='w-screen min-h-screen flex flex-col px-6 mt-[60px]'
       style={{
         backgroundImage: `url("${backgroundImageUrl}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
     >
-      {!isLoginPage &&
-        (isMainHeaderPage ? <MainHeader userInfo={userInfo} /> : <SubHeader />)}
-      <main className='flex-grow'>{children}</main>
+      {!isLoginPage && (isMainHeaderPage ? <MainHeader /> : <SubHeader />)}
+      <main className='flex-1 relative'>{children}</main>
     </div>
   );
 };
