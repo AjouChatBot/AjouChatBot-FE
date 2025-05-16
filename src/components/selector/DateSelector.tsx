@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import CalendarMonth from '../Calendar/CalendarMonth';
-import SelectedDateGroup from '../Calendar/SelectedDateGroup';
+import CalendarMonth from '../calendar/CalendarMonth';
+import SelectedDateGroup from '../calendar/SelectedDateGroup';
 import Icon from '../Icons/Icon';
 
 interface DateSelectorProps {

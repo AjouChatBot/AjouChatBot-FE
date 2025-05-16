@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import TalkArea from '../../components/Chat/TalkArea';
+import TalkArea from './TalkArea';
 
 interface ChatMessage {
   sender: 'user' | 'bot';
