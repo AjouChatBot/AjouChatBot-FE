@@ -1,5 +1,5 @@
 import React from 'react';
-import SelectedDateBox from './SelectedDateBox';
+import SelectedDateBox from '../calendar/SelectedDateBox';
 import classNames from 'classnames';
 
 interface SelectedDateGroupProps {

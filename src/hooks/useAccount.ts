@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { getAccountInfo } from '../services/authService';
-import { AccountInfo } from '../types/account';
+import { getAccountInfo } from '../services/accountService';
+import { User } from '../types/user';
 
 export const useAccount = () => {
-  const [userInfo, setUserInfo] = useState<AccountInfo | null>(null);
+  const [userInfo, setUserInfo] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 

@@ -19,6 +19,11 @@ const Login = () => {
     loginInProgressRef.current = true;
 
     if (credentialResponse.credential) {
+      console.log(
+        'credential (Google ID Token):',
+        credentialResponse.credential
+      );
+
       try {
         const loginRes = await loginWithGoogle(credentialResponse.credential);
         const { access_token, refresh_token } = loginRes.data;
