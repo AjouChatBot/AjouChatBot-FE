@@ -12,6 +12,31 @@ jobs:
       - 
         name: Git Checkout
         uses: actions/checkout@v4        
+        
+      -
+        name: Vite Build
+        run: |
+          npm install
+          npm run build
+      -
+        name: Create default.conf
+        run: |
+          cat <<EOF > default.conf
+          server {
+              listen 80;
+              server_name localhost;
+
+              root /app/dist;
+              index index.html;
+
+              location / {
+                  try_files \$uri \$uri/ /index.html;
+              }
+
+              error_page 404 /index.html;
+          }
+          EOF
+      
       - 
         name: Docker Buildx
         uses: docker/setup-buildx-action@v1
