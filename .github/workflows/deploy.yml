@@ -23,7 +23,7 @@ jobs:
         run: |
           cat <<EOF > default.conf
           server {
-              listen 80;
+              listen 3000;
 
               root /app/dist;
               index index.html;
