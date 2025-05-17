@@ -12,6 +12,12 @@ jobs:
       - 
         name: Git Checkout
         uses: actions/checkout@v4        
+
+      - name: Create .env file
+        run: |
+          echo "ENV_MODE=production" >> .env
+          echo "VITE_APP_API_URL=${{ secrets.VITE_APP_API_URL }}" >> .env
+          echo "VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}" >> .env
         
       -
         name: Vite Build
