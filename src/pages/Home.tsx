@@ -14,7 +14,7 @@ const Home = () => {
 
   return (
     <Layout>
-      <div className='flex justify-center items-center w-full h-full px-4'>
+      <div className='flex justify-center items-center w-full px-4'>
         <div className='flex justify-center max-w-[800px] w-full mt-[200px]'>
           <ChatInput mode='home' onSend={handleMessageSend} />
         </div>
