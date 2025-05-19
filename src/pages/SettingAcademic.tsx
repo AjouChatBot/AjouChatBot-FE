@@ -4,7 +4,9 @@ import SettingFileBlock from '../components/setting/SettingFileBlock';
 import SettingLine from '../components/setting/SettingLine';
 import SettingSidebar from '../components/setting/SettingSidebar';
 import SettingTitle from '../components/setting/SettingTitle';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { updateAcademicInfoSettings } from '../services/updateAcademicInfoService';
+import { getAcademicInfoSettings } from '../services/getAcademicInfoService';
 
 const SettingAcademic = () => {
   const [toggleStates, setToggleStates] = useState({
@@ -19,11 +21,57 @@ const SettingAcademic = () => {
 
   const [showFileModal, setShowFileModal] = useState(false);
 
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const data = await getAcademicInfoSettings();
+        setToggleStates({
+          agree: data.use_academic_info,
+          auto: data.auto_collect,
+          enrollment: data.allowed_categories.enrollment_info,
+          admission: data.allowed_categories.admission_info,
+          course: data.allowed_categories.course_info,
+          grade: data.allowed_categories.grade_info,
+          registration: data.allowed_categories.registration_info,
+        });
+      } catch (error) {
+        console.error('학적 정보 설정 불러오기 실패:', error);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
   const handleToggle = (key: keyof typeof toggleStates) => {
-    setToggleStates((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+    const newState = {
+      ...toggleStates,
+      [key]: !toggleStates[key],
+    };
+    setToggleStates(newState);
+
+    const payload = {
+      auto_collect: newState.auto,
+      use_academic_info: newState.agree,
+      allowed_categories: {
+        enrollment_info: newState.enrollment,
+        admission_info: newState.admission,
+        course_info: newState.course,
+        grade_info: newState.grade,
+        registration_info: newState.registration,
+      },
+    };
+
+    updateAcademicInfoSettings(payload)
+      .then((res) => {
+        if (res.status === 'success') {
+          console.log(res.message);
+        } else {
+          console.error('업데이트 실패:', res.message);
+        }
+      })
+      .catch((err) => {
+        console.error('API 호출 오류:', err);
+      });
   };
 
   return (

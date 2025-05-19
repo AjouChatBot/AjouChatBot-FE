@@ -6,6 +6,7 @@ import RecentTopics from '../chat/search/RecentTopics';
 import MonthDateSelector from '../selector/MonthDateSelector';
 import { useUser } from '../../contexts/UserContext';
 import TypingDots from './TypingDots';
+import { updateChatSettings } from '../../services/updateChatSettingService';
 
 interface ChatInputProps {
   mode: 'home' | 'chat';
@@ -37,8 +38,24 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
     setActiveCount(Object.values(toggleStates).filter(Boolean).length);
   }, [toggleStates]);
 
-  const handleToggle = (key: keyof typeof toggleStates) => {
-    setToggleStates((prev) => ({ ...prev, [key]: !prev[key] }));
+  const handleToggle = async (key: keyof typeof toggleStates) => {
+    const updatedStates = {
+      ...toggleStates,
+      [key]: !toggleStates[key],
+    };
+
+    setToggleStates(updatedStates);
+
+    try {
+      await updateChatSettings({
+        new_topic_question: updatedStates.question,
+        include_academic_info: updatedStates.academicInfo,
+        allow_response: updatedStates.responseLog,
+      });
+      console.log('채팅 설정이 서버에 반영되었습니다');
+    } catch (error) {
+      console.error('채팅 설정 반영 실패:', error);
+    }
   };
 
   const handleSend = () => {

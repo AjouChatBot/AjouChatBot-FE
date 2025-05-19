@@ -11,7 +11,7 @@ import { getAccountInfo } from '../services/accountService';
 
 const Login = () => {
   const navigate = useNavigate();
-  const { setUser } = useUser();
+  const { setUser, setAccessToken } = useUser();
   const loginInProgressRef = useRef(false);
 
   const handleLoginSuccess = async (credentialResponse: CredentialResponse) => {
@@ -19,11 +19,6 @@ const Login = () => {
     loginInProgressRef.current = true;
 
     if (credentialResponse.credential) {
-      console.log(
-        'credential (Google ID Token):',
-        credentialResponse.credential
-      );
-
       try {
         const loginRes = await loginWithGoogle(credentialResponse.credential);
         const { access_token, refresh_token } = loginRes.data;
@@ -31,8 +26,10 @@ const Login = () => {
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('refresh_token', refresh_token);
 
-        const response = await getAccountInfo(); // MeResponse
-        const userInfo = response.data; // User
+        setAccessToken(access_token);
+
+        const response = await getAccountInfo();
+        const userInfo = response.data;
 
         localStorage.setItem('user', JSON.stringify(userInfo));
         setUser(userInfo);

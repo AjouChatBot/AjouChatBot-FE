@@ -16,3 +16,9 @@ export interface StreamResponse {
 }
 
 export type StreamCallback = (response: StreamResponse) => void;
+
+export interface RecentTopic {
+  question_id: number;
+  question: string;
+  created_at: string;
+}

@@ -1,8 +1,6 @@
-// HeaderRight.tsx
 import { useState, useRef, useEffect } from 'react';
-import Icon from '../Icons/Icon';
-import { useNavigate } from 'react-router-dom';
 import { User } from '../../types/user';
+import HeaderTabs from '../layout/HeaderTabs';
 
 interface HeaderRightProps {
   userInfo: User;
@@ -12,7 +10,6 @@ interface HeaderRightProps {
 const HeaderRight = ({ userInfo, onLogout }: HeaderRightProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -48,26 +45,7 @@ const HeaderRight = ({ userInfo, onLogout }: HeaderRightProps) => {
         />
       </div>
 
-      {isMenuOpen && (
-        <div className='absolute right-0 top-[calc(100%+8px)] p-3.5 bg-white rounded-2xl outline outline-1 outline-offset-[-1px] outline-gray-200 shadow-sm z-50'>
-          <div className='px-3 py-1'>
-            <div
-              className='flex items-center gap-4'
-              onClick={() => navigate('/setting/account')}
-            >
-              <Icon name='setting' />
-              <div className='text-base font-medium'>설정</div>
-            </div>
-          </div>
-          <div className='h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-200' />
-          <div className='px-3 py-1 cursor-pointer' onClick={onLogout}>
-            <div className='flex items-center gap-4'>
-              <Icon name='logout' />
-              <div className='text-red-600 text-base font-medium'>로그아웃</div>
-            </div>
-          </div>
-        </div>
-      )}
+      {isMenuOpen && <HeaderTabs onLogout={onLogout} />}
     </div>
   );
 };
