@@ -27,7 +27,7 @@ const Layout = ({ children }: LayoutProps) => {
 
   return (
     <div
-      className='w-screen min-h-screen flex flex-col px-6 mt-[60px]'
+      className='w-screen min-h-screen flex flex-col px-6'
       style={{
         backgroundImage: `url("${backgroundImageUrl}")`,
         backgroundSize: 'cover',
