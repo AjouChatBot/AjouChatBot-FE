@@ -4,6 +4,7 @@ import Icon from '../Icons/Icon';
 interface SelectedDateBoxProps {
   date: Date | null;
   label: string; // '검색 시작일' or '검색 종료일'
+  layout: 'horizontal' | 'vertical';
 }
 
 const SelectedDateBox: React.FC<SelectedDateBoxProps> = ({ date, label }) => {

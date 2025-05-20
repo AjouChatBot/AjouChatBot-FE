@@ -4,28 +4,20 @@ import SettingFileBlock from '../components/setting/SettingFileBlock';
 import SettingLine from '../components/setting/SettingLine';
 import SettingSidebar from '../components/setting/SettingSidebar';
 import SettingTitle from '../components/setting/SettingTitle';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { updateAcademicInfoSettings } from '../services/updateAcademicInfoService';
+import { useAcademicSettings } from '../stores/academicSettingStore';
 import { getAcademicInfoSettings } from '../services/getAcademicInfoService';
 
 const SettingAcademic = () => {
-  const [toggleStates, setToggleStates] = useState({
-    agree: false,
-    auto: false,
-    enrollment: false,
-    admission: false,
-    course: false,
-    grade: false,
-    registration: false,
-  });
-
+  const { toggleStates, setToggle, setAllToggles } = useAcademicSettings();
   const [showFileModal, setShowFileModal] = useState(false);
 
   useEffect(() => {
-    const fetchSettings = async () => {
+    const fetchInitialSettings = async () => {
       try {
         const data = await getAcademicInfoSettings();
-        setToggleStates({
+        setAllToggles({
           agree: data.use_academic_info,
           auto: data.auto_collect,
           enrollment: data.allowed_categories.enrollment_info,
@@ -34,20 +26,19 @@ const SettingAcademic = () => {
           grade: data.allowed_categories.grade_info,
           registration: data.allowed_categories.registration_info,
         });
-      } catch (error) {
-        console.error('학적 정보 설정 불러오기 실패:', error);
+      } catch (err) {
+        console.error('초기 설정 불러오기 실패:', err);
       }
     };
-
-    fetchSettings();
-  }, []);
+    fetchInitialSettings();
+  }, [setAllToggles]);
 
   const handleToggle = (key: keyof typeof toggleStates) => {
     const newState = {
       ...toggleStates,
       [key]: !toggleStates[key],
     };
-    setToggleStates(newState);
+    setToggle(key);
 
     const payload = {
       auto_collect: newState.auto,
@@ -64,13 +55,13 @@ const SettingAcademic = () => {
     updateAcademicInfoSettings(payload)
       .then((res) => {
         if (res.status === 'success') {
-          console.log(res.message);
+          console.log('서버 업데이트 성공:', res.message);
         } else {
-          console.error('업데이트 실패:', res.message);
+          console.error('서버 업데이트 실패:', res.message);
         }
       })
       .catch((err) => {
-        console.error('API 호출 오류:', err);
+        console.error('서버 통신 오류:', err);
       });
   };
 

@@ -2,12 +2,16 @@ export const sendMessageToChatbotStream = async (
   payload: { user_id: number; message: string },
   onMessage: (response: { chunk: string; done: boolean }) => void
 ) => {
+  const token = localStorage.getItem('access_token');
+  if (!token) throw new Error('No access token found');
+
   const response = await fetch(
     `${import.meta.env.VITE_APP_API_URL}/chatbot/message`,
     {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        Authorization: `Bearer ${token},`,
       },
       body: JSON.stringify(payload),
       credentials: 'include',

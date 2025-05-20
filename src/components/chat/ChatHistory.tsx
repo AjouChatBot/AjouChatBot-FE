@@ -9,9 +9,14 @@ interface ChatMessage {
 interface ChatHistoryProps {
   chatLogs: ChatMessage[];
   isTyping: boolean;
+  botMessage: string;
 }
 
-const ChatHistory: React.FC<ChatHistoryProps> = ({ chatLogs, isTyping }) => {
+const ChatHistory: React.FC<ChatHistoryProps> = ({
+  chatLogs,
+  isTyping,
+  botMessage,
+}) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -19,7 +24,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ chatLogs, isTyping }) => {
   }, [chatLogs, isTyping]);
 
   return (
-    <div className='flex-1 overflow-y-auto px-6 py-4 flex flex-col gap-3 scrollbar-hide'>
+    <div className='overflow-y-auto px-6 py-4 flex flex-col gap-3 scrollbar-hide'>
       {chatLogs.map((chat, index) => (
         <TalkArea
           key={index}
@@ -29,7 +34,9 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ chatLogs, isTyping }) => {
         />
       ))}
 
-      {isTyping && <TalkArea direction='left' status='pending' message='' />}
+      {isTyping && (
+        <TalkArea direction='left' status='pending' message={botMessage} />
+      )}
       <div ref={bottomRef} />
     </div>
   );

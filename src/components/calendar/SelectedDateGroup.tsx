@@ -5,7 +5,7 @@ import classNames from 'classnames';
 interface SelectedDateGroupProps {
   startDate: Date | null;
   endDate: Date | null;
-  direction?: 'vertical' | 'horizontal'; // 수직 or 수평 배치
+  direction?: 'vertical' | 'horizontal';
 }
 
 const SelectedDateGroup: React.FC<SelectedDateGroupProps> = ({
@@ -26,8 +26,16 @@ const SelectedDateGroup: React.FC<SelectedDateGroupProps> = ({
             : 'flex-row gap-2 flex-nowrap items-center justify-between'
         )}
       >
-        <SelectedDateBox date={startDate} label='검색 시작일' />
-        <SelectedDateBox date={endDate} label='검색 종료일' />
+        <SelectedDateBox
+          date={startDate}
+          label='검색 시작일'
+          layout={direction}
+        />
+        <SelectedDateBox
+          date={endDate}
+          label='검색 종료일'
+          layout={direction}
+        />
       </div>
     </div>
   );
