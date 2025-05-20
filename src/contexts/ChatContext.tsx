@@ -4,6 +4,7 @@ import { sendMessageToChatbotStream } from '../services/chatService';
 
 export interface ChatContextType {
   chatLogs: ChatMessage[];
+  setChatLogs: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   isBotTyping: boolean;
   handleSend: (message: string) => Promise<void>;
   botMessage: string;
@@ -94,7 +95,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <ChatContext.Provider
-      value={{ chatLogs, isBotTyping, handleSend, botMessage }}
+      value={{ chatLogs, setChatLogs, isBotTyping, handleSend, botMessage }}
     >
       {children}
     </ChatContext.Provider>

@@ -7,6 +7,7 @@ import MonthDateSelector from '../selector/MonthDateSelector';
 import { useUser } from '../../contexts/UserContext';
 import TypingDots from './TypingDots';
 import { updateChatSettings } from '../../services/updateChatSettingService';
+import { searchChatbot } from '../../services/chatService';
 
 interface ChatInputProps {
   mode: 'home' | 'chat';
@@ -33,6 +34,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
   const isTextareaVisible =
     (mode === 'home' && !isDateActive) ||
     (mode === 'chat' && (searchMode === 'none' || isKeywordActive));
+
+  const [selectedStart, setSelectedStart] = useState<Date | null>(null);
+  const [selectedEnd, setSelectedEnd] = useState<Date | null>(null);
 
   useEffect(() => {
     setActiveCount(Object.values(toggleStates).filter(Boolean).length);
@@ -78,6 +82,44 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
       return prev;
     });
   };
+
+  const extractKeywordsFromMessage = (text: string): string[] => {
+    return text
+      .split(',')
+      .map((kw) => kw.trim())
+      .filter((kw) => kw.length > 0);
+  };
+
+  const handleSearch = async () => {
+    try {
+      const query = message.trim();
+      const keywords = isKeywordActive
+        ? extractKeywordsFromMessage(query)
+        : undefined;
+      const start_date =
+        isDateActive && selectedStart
+          ? selectedStart.toISOString().split('T')[0]
+          : undefined;
+      const end_date =
+        isDateActive && selectedEnd
+          ? selectedEnd.toISOString().split('T')[0]
+          : undefined;
+
+      const result = await searchChatbot({
+        query: query.length > 0 ? query : undefined,
+        keywords,
+        start_date,
+        end_date,
+      });
+
+      console.log('🔍 검색 결과:', result.data);
+      // 이후 chatLogs 상태 업데이트나 결과 표시 컴포넌트로 전달
+    } catch (error) {
+      console.error('검색 실패:', error);
+    }
+  };
+
+  const buttonLabel = isKeywordActive || isDateActive ? '찾아보기' : '물어보기';
 
   return (
     <div className='w-full  flex flex-col relative justify-center items-center'>
@@ -139,7 +181,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
 
         {isDateActive && (
           <div className='w-full'>
-            <MonthDateSelector />
+            <MonthDateSelector
+              selectedStart={selectedStart}
+              selectedEnd={selectedEnd}
+              setSelectedStart={setSelectedStart}
+              setSelectedEnd={setSelectedEnd}
+              direction={isKeywordActive ? 'horizontal' : 'vertical'}
+            />
           </div>
         )}
       </div>
@@ -186,7 +234,17 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
             </div>
           )}
 
-          <Button color='blue' text='물어보기' onClick={handleSend} />
+          <Button
+            color='blue'
+            text={buttonLabel}
+            onClick={() => {
+              if (isKeywordActive || isDateActive) {
+                handleSearch();
+              } else {
+                handleSend();
+              }
+            }}
+          />
         </div>
       </div>
     </div>
