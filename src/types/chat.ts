@@ -22,3 +22,9 @@ export interface RecentTopic {
   question: string;
   created_at: string;
 }
+
+export interface ChatMessageAPIResponse {
+  sender: 'user' | 'bot';
+  message: string;
+  timestamp: string;
+}
