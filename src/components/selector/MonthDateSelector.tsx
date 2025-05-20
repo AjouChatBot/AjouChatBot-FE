@@ -2,12 +2,24 @@ import React, { useState } from 'react';
 import MonthSelector from './MonthSelector';
 import DateSelector from './DateSelector';
 
-const MonthDateSelector: React.FC = () => {
+interface MonthDateSelectorProps {
+  selectedStart: Date | null;
+  selectedEnd: Date | null;
+  setSelectedStart: (date: Date | null) => void;
+  setSelectedEnd: (date: Date | null) => void;
+  direction?: 'horizontal' | 'vertical';
+}
+
+const MonthDateSelector: React.FC<MonthDateSelectorProps> = ({
+  selectedStart,
+  selectedEnd,
+  setSelectedStart,
+  setSelectedEnd,
+  direction,
+}) => {
   const [mode, setMode] = useState<'month' | 'date'>('month');
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
-  const [selectedStart, setSelectedStart] = useState<Date | null>(null);
-  const [selectedEnd, setSelectedEnd] = useState<Date | null>(null);
 
   const handleMonthSelect = (year: number, month: number) => {
     setSelectedYear(year);
@@ -42,6 +54,7 @@ const MonthDateSelector: React.FC = () => {
                 setSelectedEnd(date);
               }
             }}
+            direction={direction}
           />
         </>
       )}
