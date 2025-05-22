@@ -4,15 +4,14 @@ import { useChat } from '../contexts/ChatContext';
 import Layout from '../components/layout/Layout';
 import { useParams } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
-import { fetchConversation } from '../services/chatService';
 import { ChatMessageAPIResponse } from '../types/chat';
 import ChatHistory from '../components/chat/ChatHistory';
+import { fetchConversation} from "../services/fetchConversationService.ts.ts";
 
 const ChatPage: React.FC = () => {
   const { conversation_id } = useParams();
   const { accessToken } = useUser();
-  const { chatLogs, setChatLogs, isBotTyping, handleSend } =
-    useChat();
+  const { chatLogs, setChatLogs, isBotTyping, handleSend } = useChat();
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -42,28 +41,21 @@ const ChatPage: React.FC = () => {
   }, [chatLogs, isBotTyping]);
 
   return (
-    <Layout>
-      <div className='flex flex-col w-full min-h-[calc(100vh-80px)]'>
-        <div className='absolute top-0 bottom-[330px] left-0 right-0 overflow-y-auto px-8 pt-6 scrollbar-hide'>
-          <div className='max-w-[1030px] mx-auto flex flex-col gap-4'>
-            <ChatHistory
-              chatLogs={chatLogs.map(({ sender, message }) => ({
-                sender,
-                message,
-              }))}
-              isTyping={isBotTyping}
-            />
-
-            <div ref={bottomRef} className='h-[30px]' />
+      <Layout>
+        <div className='flex flex-col w-full min-h-[calc(100vh-80px)]'>
+          <div className='absolute top-0 bottom-[330px] left-0 right-0 overflow-y-auto px-8 pt-6 scrollbar-hide'>
+            <div className='max-w-[1030px] mx-auto flex flex-col gap-4'>
+              <ChatHistory chatLogs={chatLogs} isTyping={isBotTyping} />
+              <div ref={bottomRef} className='h-[30px]' />
+            </div>
+          </div>
+          <div className='absolute bottom-20 left-0 right-0 px-8 py-4 justify-center'>
+            <div className='max-w-[1030px] mx-auto justify-center'>
+              <ChatInput mode='chat' onSend={handleSend} />
+            </div>
           </div>
         </div>
-        <div className='absolute bottom-20 left-0 right-0 px-8 py-4 justify-center'>
-          <div className='max-w-[1030px] mx-auto justify-center'>
-            <ChatInput mode='chat' onSend={handleSend} />
-          </div>
-        </div>
-      </div>
-    </Layout>
+      </Layout>
   );
 };
 

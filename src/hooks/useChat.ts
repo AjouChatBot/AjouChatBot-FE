@@ -1,6 +1,7 @@
-import { useRef, useState } from 'react';
+import { useState, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { ChatMessage } from '../types/chat';
-import { sendMessageStreamWithAuth } from '../services/chatService';
+import { sendMessageStreamAndUpdate } from '../services/chatService';
 import { useUser } from '../contexts/UserContext';
 
 export const useChat = () => {
@@ -8,74 +9,53 @@ export const useChat = () => {
   const [isBotTyping, setIsBotTyping] = useState(false);
   const { user } = useUser();
 
-  const currentLogsRef = useRef<ChatMessage[]>([]);
-
-  const flushLogs = (logs: ChatMessage[]) => {
-    currentLogsRef.current = logs;
-    setChatLogs(logs);
-  };
-
-  const onMessageStreamReceived = ({
-                                     chunk,
-                                     done,
-                                   }: {
-    chunk: string;
-    done: boolean;
-  }) => {
-    try {
-      const lines = chunk.split('\n');
-
-      for (const line of lines) {
-        if (line.startsWith('data:')) {
-          const content = line.slice(5).trim();
-          if (!content) continue;
-
-          const logs = [...currentLogsRef.current];
-          const lastIdx = logs.length - 1;
-
-          if (lastIdx >= 0 && logs[lastIdx].sender === 'bot') {
-            logs[lastIdx] = {
-              ...logs[lastIdx],
-              message: logs[lastIdx].message + content,
-            };
-            flushLogs(logs);
-          }
-        }
-      }
-    } catch (e) {
-      console.error('Failed to parse response chunk:', e);
-    }
-    if (done) {
-      setIsBotTyping(false);
-    }
-  };
+  const botMessageBuffer = useRef('');
 
   const handleSend = async (message: string) => {
     const token = localStorage.getItem('access_token');
     if (!token || !user?.id || !message.trim()) return;
 
-    const newLogs: ChatMessage[] = [
-      ...currentLogsRef.current,
+    botMessageBuffer.current = '';
+
+    setChatLogs(prev => [
+      ...prev,
       { sender: 'user', message, isUser: true },
       { sender: 'bot', message: '', isUser: false },
-    ];
-
-    flushLogs(newLogs);
+    ]);
     setIsBotTyping(true);
 
     try {
-      await sendMessageStreamWithAuth(
+      await sendMessageStreamAndUpdate(
           {
             user_id: user.id,
             message,
           },
-          onMessageStreamReceived,
-          token
+          token,
+          (chunk: string) => {
+            botMessageBuffer.current += chunk;
+
+            flushSync(() => {
+              setChatLogs(prev => {
+                const updated = [...prev];
+                const lastIdx = updated.length - 1;
+                if (lastIdx >= 0 && updated[lastIdx].sender === 'bot') {
+                  updated[lastIdx] = {
+                    ...updated[lastIdx],
+                    message: botMessageBuffer.current,
+                  };
+                }
+                return updated;
+              });
+            });
+          },
+          () => {
+            setIsBotTyping(false);
+          }
       );
     } catch (err) {
       console.error('Stream error:', err);
-      flushLogs([
-        ...currentLogsRef.current,
+      setChatLogs(prev => [
+        ...prev,
         { sender: 'bot', message: 'Error occurred', isUser: false },
       ]);
       setIsBotTyping(false);

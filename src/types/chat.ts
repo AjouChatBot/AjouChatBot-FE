@@ -10,13 +10,6 @@ export interface ChatPayload {
   message: string;
 }
 
-export interface StreamResponse {
-  chunk: string;
-  done: boolean;
-}
-
-export type StreamCallback = (response: StreamResponse) => void;
-
 export interface RecentTopic {
   question_id: number;
   question: string;
