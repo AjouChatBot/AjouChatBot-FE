@@ -1,6 +1,6 @@
 interface SettingDetailProps {
-  label: string;
-  value: string;
+  label: string | null;
+  value: string | null;
 }
 
 const SettingDetail: React.FC<SettingDetailProps> = ({ label, value }) => {
