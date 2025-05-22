@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import TalkArea from './TalkArea';
-import TypingDots from "./TypingDots.tsx";
+import BotTypingDots from './BotTypingDots.tsx';
 
 interface ChatMessage {
   sender: 'user' | 'bot';
@@ -12,40 +12,34 @@ interface ChatHistoryProps {
   isTyping: boolean;
 }
 
-const ChatHistory: React.FC<ChatHistoryProps> = ({
-  chatLogs,
-  isTyping,
-}) => {
+const ChatHistory: React.FC<ChatHistoryProps> = ({ chatLogs, isTyping }) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({behavior: 'smooth'});
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatLogs, isTyping]);
 
-  useEffect(() => {
-    console.log('[ChatHistory] chatLogs =', chatLogs);
-  }, [chatLogs]);
-
-
   return (
-      <div className="overflow-y-auto px-6 py-4 flex flex-col gap-3 scrollbar-hide">
-        {chatLogs.map((chat, index) => (
-            <TalkArea
-                key={index}
-                direction={chat.sender === 'user' ? 'right' : 'left'}
-                status="inputted"
-            >
-              {isTyping && chat.sender === 'bot' && index === chatLogs.length - 1 && !chat.message
-                  ? <TypingDots />
-                  : chat.message}
-            </TalkArea>
-        ))}
+    <div className='overflow-y-auto px-6 py-4 flex flex-col gap-3 scrollbar-hide'>
+      {chatLogs.map((chat, index) => {
+        const isLastBotMessage =
+          chat.sender === 'bot' && index === chatLogs.length - 1;
+        const showTypingDots = isTyping && isLastBotMessage && !chat.message;
 
-
-        <div ref={bottomRef}/>
-      </div>
-
+        return (
+          <TalkArea
+            key={index}
+            direction={chat.sender === 'user' ? 'right' : 'left'}
+            status={isTyping && isLastBotMessage ? 'pending' : 'inputted'}
+            message={chat.message}
+          >
+            {showTypingDots ? <BotTypingDots /> : null}
+          </TalkArea>
+        );
+      })}
+      <div ref={bottomRef} />
+    </div>
   );
+};
 
-}
-  export default ChatHistory;
+export default ChatHistory;

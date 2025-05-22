@@ -2,11 +2,12 @@ import React, {
   createContext,
   useState,
   useContext,
+  useRef,
   ReactNode,
 } from 'react';
 import { ChatMessage } from '../types/chat';
-import { sendMessageStreamWithAuth } from '../services/chatService';
 import { useUser } from './UserContext';
+import { sendMessageStreamAndUpdate } from '../services/chatService';
 
 export interface ChatContextType {
   chatLogs: ChatMessage[];
@@ -18,97 +19,75 @@ export interface ChatContextType {
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider: React.FC<{ children: ReactNode }> = ({
-                                                                  children,
-                                                                }) => {
+  children,
+}) => {
   const [chatLogs, setChatLogs] = useState<ChatMessage[]>([]);
   const [isBotTyping, setIsBotTyping] = useState(false);
+  const currentLogsRef = useRef<ChatMessage[]>([]);
+  const messageBufferRef = useRef('');
 
   const { user, accessToken } = useUser();
 
-  const onMessageStreamReceived = ({
-                                     chunk,
-                                     done,
-                                   }: {
-    chunk: string;
-    done: boolean;
-  }) => {
-    try {
-      console.log('[STREAM CHUNK]', chunk, '| done:', done);
-
-      const lines = chunk.split('\n');
-
-      for (const line of lines) {
-        if (line.startsWith('data:')) {
-          const content = line.slice(5);
-
-            setChatLogs((prev) => {
-              const updated = [...prev];
-              const lastIdx = updated.length - 1;
-
-              if (updated[lastIdx]?.sender === 'bot') {
-                updated[lastIdx] = {
-                  ...updated[lastIdx],
-                  message: updated[lastIdx].message + content,
-                };
-              }
-
-              return updated;
-            });
-
-        }
-      }
-    } catch (e) {
-      console.error('Failed to parse response chunk:', e);
-    }
-
-    if (done) {
-      setIsBotTyping(false);
-    }
+  const flushLogs = (logs: ChatMessage[]) => {
+    currentLogsRef.current = logs;
+    setChatLogs(logs);
   };
 
   const handleSend = async ({ sender, message }: ChatMessage) => {
     if (!message.trim()) return;
+    if (!accessToken || !user?.id) return;
 
     if (sender === 'user') {
-      setChatLogs((prev) => [
-        ...prev,
-        { sender: 'user', message },
-        { sender: 'bot', message: '' },
-      ]);
+      messageBufferRef.current = '';
+      const newLogs: ChatMessage[] = [
+        ...currentLogsRef.current,
+        { sender: 'user', message, isUser: true },
+        { sender: 'bot', message: '', isUser: false },
+      ];
+
+      flushLogs(newLogs);
       setIsBotTyping(true);
 
       try {
-        if (!accessToken || !user?.id) {
-          throw new Error('Missing authentication info');
-        }
-
-        await sendMessageStreamWithAuth(
-            {
-              user_id: user.id,
-              message,
-            },
-            onMessageStreamReceived,
-            accessToken
+        await sendMessageStreamAndUpdate(
+          { user_id: user.id, message },
+          accessToken,
+          (updatedBotMessage) => {
+            messageBufferRef.current += updatedBotMessage;
+            const logs = [...currentLogsRef.current];
+            const lastIdx = logs.length - 1;
+            if (logs[lastIdx]?.sender === 'bot') {
+              logs[lastIdx] = {
+                ...logs[lastIdx],
+                message: messageBufferRef.current,
+              };
+              flushLogs(logs);
+            }
+          },
+          () => {
+            setIsBotTyping(false);
+          }
         );
       } catch (err) {
-        console.error('Error sending message:', err);
-        setChatLogs((prev) => [
-          ...prev,
-          { sender: 'bot', message: '오류가 발생했습니다.' },
+        console.error('Stream error:', err);
+        flushLogs([
+          ...currentLogsRef.current,
+          { sender: 'user', message, isUser: true },
+          { sender: 'bot', message: '', isUser: false },
         ]);
         setIsBotTyping(false);
       }
     } else {
-      setChatLogs((prev) => [...prev, { sender: 'bot', message }]);
+      flushLogs([...currentLogsRef.current, { sender: 'bot', message }]);
     }
   };
 
   return (
-      <ChatContext.Provider
-          value={{ chatLogs, setChatLogs, isBotTyping, handleSend }}
-      >
-        {children}
-      </ChatContext.Provider>
+    <ChatContext.Provider
+      value={{ chatLogs, setChatLogs, isBotTyping, handleSend }}
+    >
+      {children}
+    </ChatContext.Provider>
   );
 };
 
