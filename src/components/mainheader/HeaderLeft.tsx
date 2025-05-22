@@ -14,7 +14,7 @@ const HeaderLeft = () => {
         <div className='flex items-start'>
           <Icon name='AmateText' size={80} />
         </div>
-        <div>
+        <div className="whitespace-nowrap">
           <TalkArea message='어떤 내용이 궁금하신가요?' />
         </div>
       </div>

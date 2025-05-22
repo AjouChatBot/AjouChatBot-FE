@@ -1,5 +1,3 @@
-// src/pages/Login.tsx
-
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useRef } from 'react';
@@ -19,12 +17,15 @@ const Login = () => {
     loginInProgressRef.current = true;
 
     if (credentialResponse.credential) {
+      console.log('🪪 Google Credential:', credentialResponse.credential);
+
       try {
         const loginRes = await loginWithGoogle(credentialResponse.credential);
-        const { access_token, refresh_token } = loginRes.data;
+        const { access_token, refresh_token, ...user } = loginRes.data;
 
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('refresh_token', refresh_token);
+        localStorage.setItem('user', JSON.stringify(user));
 
         setAccessToken(access_token);
 

@@ -9,9 +9,14 @@ import TypingDots from './TypingDots';
 import { updateChatSettings } from '../../services/updateChatSettingService';
 import { searchChatbot } from '../../services/chatService';
 
+interface ChatMessage {
+  sender: 'user' | 'bot';
+  message: string;
+}
+
 interface ChatInputProps {
   mode: 'home' | 'chat';
-  onSend: (message: string) => void;
+  onSend: (msg: ChatMessage) => void;
 }
 
 const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
@@ -64,7 +69,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
 
   const handleSend = () => {
     if (!message.trim()) return;
-    onSend(message);
+    onSend({ sender: 'user', message });
     setMessage('');
   };
 
@@ -105,6 +110,19 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
           ? selectedEnd.toISOString().split('T')[0]
           : undefined;
 
+      const userMessageParts = [];
+      if (start_date && end_date)
+        userMessageParts.push(`${start_date} ~ ${end_date}`);
+      if (keywords?.length)
+        userMessageParts.push(`${keywords.join(', ')} 검색`);
+
+      const userMessage =
+        userMessageParts.length > 0
+          ? userMessageParts.join('동안 ')
+          : '검색 실행';
+
+      onSend({ sender: 'user', message: userMessage });
+
       const result = await searchChatbot({
         query: query.length > 0 ? query : undefined,
         keywords,
@@ -112,10 +130,18 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
         end_date,
       });
 
-      console.log('🔍 검색 결과:', result.data);
-      // 이후 chatLogs 상태 업데이트나 결과 표시 컴포넌트로 전달
+      const responseMessage =
+        result?.data && Array.isArray(result.data) && result.data.length > 0
+          ? `검색 결과: ${result.data.join(', ')}`
+          : '검색 결과가 없습니다.';
+      onSend({ sender: 'bot', message: responseMessage });
+      setSearchMode('none');
+      setSelectedStart(null);
+      setSelectedEnd(null);
+      setMessage('');
     } catch (error) {
       console.error('검색 실패:', error);
+      onSend({ sender: 'bot', message: 'error' });
     }
   };
 
@@ -166,7 +192,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
-                      handleSend();
+                      if (isKeywordActive || isDateActive) {
+                        handleSearch();
+                      } else {
+                        handleSend();
+                      }
                     }
                   }}
                 />
