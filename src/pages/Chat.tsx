@@ -11,7 +11,7 @@ import ChatHistory from '../components/chat/ChatHistory';
 const ChatPage: React.FC = () => {
   const { conversation_id } = useParams();
   const { accessToken } = useUser();
-  const { chatLogs, setChatLogs, isBotTyping, handleSend, botMessage } =
+  const { chatLogs, setChatLogs, isBotTyping, handleSend } =
     useChat();
   const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -44,7 +44,7 @@ const ChatPage: React.FC = () => {
   return (
     <Layout>
       <div className='flex flex-col w-full min-h-[calc(100vh-80px)]'>
-        <div className='absolute top-0 bottom-[400px] left-0 right-0 overflow-y-auto px-8 pt-6 scrollbar-hide'>
+        <div className='absolute top-0 bottom-[330px] left-0 right-0 overflow-y-auto px-8 pt-6 scrollbar-hide'>
           <div className='max-w-[1030px] mx-auto flex flex-col gap-4'>
             <ChatHistory
               chatLogs={chatLogs.map(({ sender, message }) => ({
@@ -52,7 +52,6 @@ const ChatPage: React.FC = () => {
                 message,
               }))}
               isTyping={isBotTyping}
-              botMessage={botMessage}
             />
 
             <div ref={bottomRef} className='h-[30px]' />

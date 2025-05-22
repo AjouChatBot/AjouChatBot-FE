@@ -18,7 +18,6 @@ export const getAcademicInfoSettings =
       status: string;
       data: AcademicInfoResponseData;
     }>('/account/info/academic-settings');
-    console.log('전체 응답:', res);
 
     return res.data.data;
   };

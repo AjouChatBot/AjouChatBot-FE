@@ -1,78 +1,83 @@
-import { useState, useEffect } from 'react';
+import { useRef, useState } from 'react';
 import { ChatMessage } from '../types/chat';
-import { sendMessageToChatbotStream } from '../services/chatService';
+import { sendMessageStreamWithAuth } from '../services/chatService';
+import { useUser } from '../contexts/UserContext';
 
 export const useChat = () => {
   const [chatLogs, setChatLogs] = useState<ChatMessage[]>([]);
   const [isBotTyping, setIsBotTyping] = useState(false);
-  const [botMessage, setBotMessage] = useState<string>('');
+  const { user } = useUser();
+
+  const currentLogsRef = useRef<ChatMessage[]>([]);
+
+  const flushLogs = (logs: ChatMessage[]) => {
+    currentLogsRef.current = logs;
+    setChatLogs(logs);
+  };
 
   const onMessageStreamReceived = ({
-    chunk: partial,
-    done,
-  }: {
+                                     chunk,
+                                     done,
+                                   }: {
     chunk: string;
     done: boolean;
   }) => {
-    const cleaned = partial
-      .replace(/data:/g, '')
-      .split('\n\n')
-      .filter((v) => v.length > 0);
+    try {
+      const lines = chunk.split('\n');
 
-    setBotMessage((p) => p + cleaned);
+      for (const line of lines) {
+        if (line.startsWith('data:')) {
+          const content = line.slice(5).trim();
+          if (!content) continue;
 
+          const logs = [...currentLogsRef.current];
+          const lastIdx = logs.length - 1;
+
+          if (lastIdx >= 0 && logs[lastIdx].sender === 'bot') {
+            logs[lastIdx] = {
+              ...logs[lastIdx],
+              message: logs[lastIdx].message + content,
+            };
+            flushLogs(logs);
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Failed to parse response chunk:', e);
+    }
     if (done) {
       setIsBotTyping(false);
-      setBotMessage('');
-      return;
     }
   };
 
-  useEffect(() => {
-    if (!isBotTyping) return;
-
-    setChatLogs((prev) => {
-      const updated = [...prev];
-      const lastIdx = updated.length - 1;
-
-      if (updated[lastIdx]?.sender === 'bot') {
-        updated[lastIdx] = {
-          sender: 'bot',
-          message: botMessage,
-          isUser: false,
-        };
-      }
-
-      return updated;
-    });
-  }, [isBotTyping, botMessage]);
-
   const handleSend = async (message: string) => {
-    if (!message.trim()) return;
+    const token = localStorage.getItem('access_token');
+    if (!token || !user?.id || !message.trim()) return;
 
-    setChatLogs((prev) => [
-      ...prev,
+    const newLogs: ChatMessage[] = [
+      ...currentLogsRef.current,
       { sender: 'user', message, isUser: true },
       { sender: 'bot', message: '', isUser: false },
-    ]);
+    ];
 
+    flushLogs(newLogs);
     setIsBotTyping(true);
 
     try {
-      await sendMessageToChatbotStream(
-        {
-          user_id: 1234,
-          message,
-        },
-        onMessageStreamReceived
+      await sendMessageStreamWithAuth(
+          {
+            user_id: user.id,
+            message,
+          },
+          onMessageStreamReceived,
+          token
       );
     } catch (err) {
       console.error('Stream error:', err);
-      setChatLogs((prev) => [
-        ...prev,
+      flushLogs([
+        ...currentLogsRef.current,
         { sender: 'bot', message: 'Error occurred', isUser: false },
       ]);
-    } finally {
       setIsBotTyping(false);
     }
   };

@@ -15,6 +15,10 @@ export const getUserProfile = async (): Promise<MeResponse> => {
   return res.data;
 };
 
-export const logoutAPI = async () => {
-  return await apiClient.post('/auth/logout');
+export const logoutAPI = async (token: string) => {
+  return await apiClient.post('/auth/logout', {}, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };

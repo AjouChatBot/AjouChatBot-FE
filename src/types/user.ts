@@ -2,19 +2,20 @@
 
 // 로그인 후 저장될 기본 정보
 export interface BasicUser {
-  user_id: number;
+  id: string;
   name: string;
   email: string;
-  profile_image: string;
+  profile_image?: string;
 }
 
 // 전체 사용자 정보 (모든 컴포넌트/페이지에서 이걸 쓰게 됨)
 export interface User extends BasicUser {
-  phone: string;
-  department: string;
-  college: string;
-  major: string;
+  phone: string | null;
+  department: string | null;
+  college: string | null;
+  major: string | null;
   grade: number;
+  trackEnabled?: boolean;
 }
 
 // 로그인 응답

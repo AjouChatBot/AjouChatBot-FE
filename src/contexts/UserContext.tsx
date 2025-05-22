@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { User } from '../types/user';
-import { getAccountInfo } from '../services/accountService';
 import { logoutAPI } from '../services/authService';
 
 interface UserContextType {
@@ -8,7 +7,7 @@ interface UserContextType {
   accessToken: string | null;
   setUser: (user: User | null) => void;
   setAccessToken: (token: string | null) => void;
-  logout: () => void;
+  logout: (navigate?: (path: string) => void) => void;
 }
 
 const UserContext = createContext<UserContextType>({
@@ -22,12 +21,19 @@ const UserContext = createContext<UserContextType>({
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-
-  const logout = async () => {
+  const [user, setUser] = useState<User | null>(() => {
+    const stored = localStorage.getItem('user');
+    return stored ? JSON.parse(stored) : null;
+  });
+  const [accessToken, setAccessToken] = useState<string | null>(
+      () => localStorage.getItem('access_token')
+  );
+  const logout = async (navigate?: (path: string) => void) => {
     try {
-      await logoutAPI();
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        await logoutAPI(token); // 서버에 토큰 보냄
+      }
     } catch (e) {
       console.warn('서버 로그아웃 실패', e);
     }
@@ -36,27 +42,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     setAccessToken(null);
     localStorage.removeItem('user');
     localStorage.removeItem('access_token');
+
+    if(navigate) {
+      navigate('/login');
+    }
   };
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    const storedToken = localStorage.getItem('access_token');
-
-    if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser));
-      setAccessToken(storedToken);
-    } else {
-      getAccountInfo()
-        .then((res) => {
-          setUser(res.data);
-          localStorage.setItem('user', JSON.stringify(res.data));
-        })
-        .catch((err) => {
-          console.error('유저 정보 로딩 실패:', err);
-          logout();
-        });
-    }
-  }, []);
 
   return (
     <UserContext.Provider

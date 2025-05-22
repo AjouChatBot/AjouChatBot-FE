@@ -28,17 +28,18 @@ export const searchChatbot = async ({
   return response.data;
 };
 
-export const sendMessageToChatbotStream = async (
+export const sendMessageStreamWithAuth = async (
   payload: ChatPayload,
-  onMessage: StreamCallback
+  onMessage: StreamCallback,
+  token: string
 ) => {
   const response = await fetch(`${API_URL}/chatbot/message`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
     },
     body: JSON.stringify(payload),
-    credentials: 'include',
   });
 
   if (!response.body) throw new Error('No response body');
@@ -47,17 +48,26 @@ export const sendMessageToChatbotStream = async (
   const decoder = new TextDecoder('utf-8');
 
   let done = false;
+  let cache = '';
+
   while (!done) {
     const { value, done: readerDone } = await reader.read();
     done = readerDone;
 
     if (value) {
-      const chunk = decoder.decode(value, { stream: true });
-      onMessage({ chunk, done: readerDone });
-    } else {
-      onMessage({ chunk: '', done: readerDone });
+      cache += decoder.decode(value, { stream: true });
+      const lines = cache.split('\n');
+
+      for (let i = 0; i < lines.length - 1; i++) {
+        const line = lines[i].trim();
+        if (line) onMessage({ chunk: line, done: false });
+      }
+
+      cache = lines[lines.length - 1];
     }
   }
+
+  onMessage({ chunk: '', done: true });
 };
 
 export const fetchConversation = async (

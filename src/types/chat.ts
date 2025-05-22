@@ -1,12 +1,12 @@
 export interface ChatMessage {
   sender: 'user' | 'bot';
   message: string;
-  isUser: boolean;
+  isUser?: boolean;
   status?: 'inputted' | 'pending' | 'error';
 }
 
 export interface ChatPayload {
-  user_id: number;
+  user_id: string;
   message: string;
 }
 

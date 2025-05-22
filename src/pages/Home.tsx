@@ -5,10 +5,14 @@ import { useChat } from '../contexts/ChatContext';
 
 const Home = () => {
   const navigate = useNavigate();
-  const { handleSend } = useChat();
+  const { handleSend, setChatLogs } = useChat();
 
-  const handleMessageSend = (message: string) => {
-    handleSend(message);
+  const handleMessageSend = (chat: {
+    sender: 'user' | 'bot';
+    message: string;
+  }) => {
+    setChatLogs([]);
+    handleSend(chat);
     navigate('/chat');
   };
 

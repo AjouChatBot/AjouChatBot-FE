@@ -72,7 +72,7 @@ const SubHeader = () => {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             alt='Profile'
           />
-          {isMenuOpen && <HeaderTabs onLogout={logout} />}
+          {isMenuOpen && <HeaderTabs onLogout={() => logout(navigate)} />}
         </div>
       </div>
     </div>
