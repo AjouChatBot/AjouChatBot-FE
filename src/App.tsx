@@ -13,6 +13,7 @@ const App = () => {
     <UserProvider>
       <ChatProvider>
         <Routes>
+          <Route path='/' element={<Home/>}/>
           <Route path='/home' element={<Home />} />
           <Route path='/chat' element={<Chat />} />
           <Route path='/login' element={<Login />} />

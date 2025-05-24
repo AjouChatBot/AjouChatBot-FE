@@ -39,7 +39,7 @@ const HeaderRight = ({ userInfo, onLogout }: HeaderRightProps) => {
           </div>
         </div>
         <img
-          className='w-12 h-12 rounded-2xl border border-gray-200'
+          className='w-12 h-12 rounded-2xl border border-gray-200 text-black'
           src={userInfo.profile_image}
           alt={`${userInfo.name}의 프로필 이미지`}
         />

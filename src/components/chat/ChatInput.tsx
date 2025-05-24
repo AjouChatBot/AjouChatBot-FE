@@ -21,6 +21,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [activeCount, setActiveCount] = useState(0);
   const [searchMode, setSearchMode] = useState<'none' | 'keyword' | 'date' | 'both'>('none');
+  const [isComposing, setIsComposing] = useState(false);
   const [toggleStates, setToggleStates] = useState({
     question: true,
     academicInfo: false,
@@ -120,7 +121,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
         {mode === 'home' && !isKeywordActive && (
             <div className='w-full flex flex-grow gap-40 justify-between'>
               <img src='/CheetoImage.png' alt='cheeto icon' className='w-[220px]' />
-              <div className='flex flex-col items-end justify-center text-2xl font-bold'>
+              <div className='flex flex-col items-end justify-center text-2xl text-black font-bold'>
                 <h3>{user?.name || '사용자'}님, 돌아오신 걸 환영해요!</h3>
                 <h3>궁금하신 내용이 있나요?</h3>
               </div>
@@ -154,12 +155,15 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder='검색할 주제나 내용을 알려주세요'
                     onKeyDown={(e) => {
+                      if (isComposing) return;
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
                         if (isKeywordActive || isDateActive) handleSearch();
                         else handleSend();
                       }
                     }}
+                    onCompositionStart={() => setIsComposing(true)}
+                    onCompositionEnd={() => setIsComposing(false)}
                 />
                       <div className='mt-2 flex items-center gap-3'>
                         <span className='text-xs text-gray-500'>인식한 키워드</span>
