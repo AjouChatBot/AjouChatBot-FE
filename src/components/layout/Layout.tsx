@@ -14,6 +14,7 @@ const Layout = ({ children }: LayoutProps) => {
   const isSettingPage = pathname.startsWith('/setting');
 
   const isMainHeaderPage =
+      pathname === '/' ||
     pathname === '/home' ||
     pathname === '/setting/account' ||
     pathname === '/setting/academic' ||
