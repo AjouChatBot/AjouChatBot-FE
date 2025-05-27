@@ -3,7 +3,6 @@ import TalkArea from '../components/chat/TalkArea';
 import Icon from '../components/Icons/Icon';
 import { useNavigate } from 'react-router-dom';
 import { useChat } from '../contexts/ChatContext';
-import { useUser } from '../contexts/UserContext';
 
 const MobileHome = () => {
   const [message, setMessage] = useState('');
