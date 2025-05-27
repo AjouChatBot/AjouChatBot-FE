@@ -6,7 +6,7 @@ type ToggleKeys = 'question' | 'academicInfo' | 'responseLog';
 interface OptionsProps {
   toggleStates: { [key in ToggleKeys]: boolean };
   onToggleChange: (key: ToggleKeys) => void;
-  onClose?: () => void; // ✅ onClose를 props로 추가
+  onClose?: () => void;
   setActiveCount: (count: number) => void;
 }
 
@@ -16,7 +16,7 @@ const Options: React.FC<OptionsProps> = ({
   onClose,
   setActiveCount,
 }) => {
-  const optionsRef = useRef<HTMLDivElement>(null); // ✅ Options 창을 감싸는 ref
+  const optionsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -24,7 +24,7 @@ const Options: React.FC<OptionsProps> = ({
         optionsRef.current &&
         !optionsRef.current.contains(event.target as Node)
       ) {
-        onClose?.(); // ✅ 외부 클릭 시 onClose 실행
+        onClose?.();
       }
     };
 
@@ -32,7 +32,7 @@ const Options: React.FC<OptionsProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [onClose]); // ✅ 의존성 배열에 onClose 추가
+  }, [onClose]);
 
   useEffect(() => {
     const activeCount = Object.values(toggleStates).filter(
@@ -43,12 +43,11 @@ const Options: React.FC<OptionsProps> = ({
 
   return (
     <div
-      ref={optionsRef} // ✅ ref 연결
+      ref={optionsRef}
       className='w-80 px-6 py-5 bg-white rounded-lg shadow-md inline-flex flex-col justify-center items-start gap-6'
     >
       <div className='justify-start text-black text-base font-bold'>옵션</div>
 
-      {/* 질문 토글 */}
       <div className='self-stretch flex flex-col justify-start items-start gap-2'>
         <div className='self-stretch inline-flex justify-center items-center gap-2.5'>
           <div className='justify-start text-neutral-400 text-xs font-medium'>
@@ -69,7 +68,6 @@ const Options: React.FC<OptionsProps> = ({
         </div>
       </div>
 
-      {/* 응답 토글 */}
       <div className='self-stretch flex flex-col justify-start items-start gap-2'>
         <div className='self-stretch inline-flex justify-center items-center gap-2.5'>
           <div className='justify-start text-neutral-400 text-xs font-semibold'>

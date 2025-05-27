@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import CalendarMonth from '../Calendar/CalendarMonth';
-import SelectedDateGroup from '../Calendar/SelectedDateGroup';
+import CalendarMonth from '../calendar/CalendarMonth';
+import SelectedDateGroup from '../calendar/SelectedDateGroup';
 import Icon from '../Icons/Icon';
 
 interface DateSelectorProps {
@@ -9,6 +9,7 @@ interface DateSelectorProps {
   selectedStart: Date | null;
   selectedEnd: Date | null;
   onDateSelect: (date: Date) => void;
+  direction?: 'horizontal' | 'vertical';
 }
 
 const DateSelector: React.FC<DateSelectorProps> = ({
@@ -17,6 +18,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({
   selectedStart,
   selectedEnd,
   onDateSelect,
+  direction,
 }) => {
   const [currentYear, setCurrentYear] = useState(year);
   const [currentMonth, setCurrentMonth] = useState(month);
@@ -47,7 +49,7 @@ const DateSelector: React.FC<DateSelectorProps> = ({
         <SelectedDateGroup
           startDate={selectedStart}
           endDate={selectedEnd}
-          direction='vertical' // 외부 상태로 교체 가능
+          direction={direction ?? 'vertical'}
         />
       </div>
 

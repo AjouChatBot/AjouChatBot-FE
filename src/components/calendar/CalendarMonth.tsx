@@ -1,4 +1,4 @@
-import CalendarDay from './CalendarDay';
+import CalendarDay from '../calendar/CalendarDay';
 
 interface CalendarMonthProps {
   year: number;

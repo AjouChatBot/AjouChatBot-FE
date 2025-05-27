@@ -1,13 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
-import Icon from '../Icons/Icon';
-import { AccountInfo } from '../../types/account';
+import { useState, useRef, useEffect } from 'react';
+import { User } from '../../types/user';
+import HeaderTabs from '../layout/HeaderTabs';
 
 interface HeaderRightProps {
-  userInfo: AccountInfo;
+  userInfo: User;
   onLogout: () => void;
 }
 
-const HeaderRight: React.FC<HeaderRightProps> = ({ userInfo, onLogout }) => {
+const HeaderRight = ({ userInfo, onLogout }: HeaderRightProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -34,37 +34,18 @@ const HeaderRight: React.FC<HeaderRightProps> = ({ userInfo, onLogout }) => {
           </div>
           <div className='flex justify-end gap-1.5'>
             <div className='text-right text-xs font-medium'>
-              {userInfo.department}
-            </div>
-            <div className='text-right text-xs font-medium'>
-              {userInfo.grade}학년
+              {userInfo.email}
             </div>
           </div>
         </div>
         <img
-          className='w-12 h-12 rounded-2xl border border-gray-200'
-          src='https://placehold.co/48x48'
+          className='w-12 h-12 rounded-2xl border border-gray-200 text-black'
+          src={userInfo.profile_image}
           alt={`${userInfo.name}의 프로필 이미지`}
         />
       </div>
 
-      {isMenuOpen && (
-        <div className='absolute right-0 top-[calc(100%+8px)] p-3.5 bg-white rounded-2xl outline outline-1 outline-offset-[-1px] outline-gray-200 shadow-sm z-50'>
-          <div className='px-3 py-1'>
-            <div className='flex items-center gap-4'>
-              <Icon name='setting' />
-              <div className='text-base font-medium'>설정</div>
-            </div>
-          </div>
-          <div className='h-0 outline outline-1 outline-offset-[-0.50px] outline-gray-200' />
-          <div className='px-3 py-1 cursor-pointer' onClick={onLogout}>
-            <div className='flex items-center gap-4'>
-              <Icon name='logout' />
-              <div className='text-red-600 text-base font-medium'>로그아웃</div>
-            </div>
-          </div>
-        </div>
-      )}
+      {isMenuOpen && <HeaderTabs onLogout={onLogout} />}
     </div>
   );
 };

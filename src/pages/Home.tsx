@@ -1,43 +1,26 @@
-import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ChatInput from '../components/Chat/ChatInput';
-import { getAccountInfo } from '../services/accountService';
-import { AccountInfo } from '../types/account';
+import ChatInput from '../components/chat/ChatInput';
 import Layout from '../components/layout/Layout';
 import { useChat } from '../contexts/ChatContext';
 
 const Home = () => {
-  const [userInfo, setUserInfo] = useState<AccountInfo | null>(null);
   const navigate = useNavigate();
-  const { handleSend } = useChat();
+  const { handleSend, setChatLogs } = useChat();
 
-  useEffect(() => {
-    const loadUserInfo = async () => {
-      try {
-        const response = await getAccountInfo();
-        setUserInfo(response.data);
-      } catch (error) {
-        console.error('Failed to load user info:', error);
-      }
-    };
-
-    loadUserInfo();
-  }, []);
-
-  const handleMessageSend = (message: string) => {
-    handleSend(message);
+  const handleMessageSend = (chat: {
+    sender: 'user' | 'bot';
+    message: string;
+  }) => {
+    setChatLogs([]);
+    handleSend(chat);
     navigate('/chat');
   };
 
   return (
     <Layout>
-      <div className='flex justify-center items-center w-full h-full px-4'>
-        <div className='max-w-[800px]w-full'>
-          <ChatInput
-            mode='home'
-            onSend={handleMessageSend}
-            userInfo={userInfo}
-          />
+      <div className='flex justify-center items-center w-full px-4'>
+        <div className='flex justify-center max-w-[800px] w-full mt-[200px]'>
+          <ChatInput mode='home' onSend={handleMessageSend} />
         </div>
       </div>
     </Layout>

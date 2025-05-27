@@ -1,18 +1,24 @@
 export interface ChatMessage {
+  id: string;
   sender: 'user' | 'bot';
   message: string;
-  isUser: boolean;
+  isUser?: boolean;
   status?: 'inputted' | 'pending' | 'error';
 }
 
 export interface ChatPayload {
-  user_id: number;
+  user_id: string;
   message: string;
 }
 
-export interface StreamResponse {
-  chunk: string;
-  done: boolean;
+export interface RecentTopic {
+  question_id: number;
+  question: string;
+  created_at: string;
 }
 
-export type StreamCallback = (response: StreamResponse) => void;
+export interface ChatMessageAPIResponse {
+  sender: 'user' | 'bot';
+  message: string;
+  timestamp: string;
+}
