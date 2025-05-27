@@ -8,12 +8,16 @@ import React, {
 import { ChatMessage } from '../types/chat';
 import { useUser } from './UserContext';
 import { sendMessageStreamAndUpdate } from '../services/chatService';
+import { v4 as uuidv4 } from 'uuid';
 
 export interface ChatContextType {
   chatLogs: ChatMessage[];
   setChatLogs: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   isBotTyping: boolean;
-  handleSend: (message: ChatMessage) => Promise<void>;
+  handleSend: (message: {
+    sender: 'user' | 'bot';
+    message: string;
+  }) => Promise<void>;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -24,7 +28,6 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
   const [chatLogs, setChatLogs] = useState<ChatMessage[]>([]);
   const [isBotTyping, setIsBotTyping] = useState(false);
   const currentLogsRef = useRef<ChatMessage[]>([]);
-  const messageBufferRef = useRef('');
 
   const { user, accessToken } = useUser();
 
@@ -33,16 +36,36 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
     setChatLogs(logs);
   };
 
-  const handleSend = async ({ sender, message }: ChatMessage) => {
+  const handleSend = async ({
+    sender,
+    message,
+  }: {
+    sender: 'user' | 'bot';
+    message: string;
+  }) => {
     if (!message.trim()) return;
     if (!accessToken || !user?.id) return;
 
     if (sender === 'user') {
-      messageBufferRef.current = '';
+      const userMessageId = uuidv4();
+      const botMessageId = uuidv4();
+
       const newLogs: ChatMessage[] = [
         ...currentLogsRef.current,
-        { sender: 'user', message, isUser: true },
-        { sender: 'bot', message: '', isUser: false },
+        {
+          id: userMessageId,
+          sender: 'user',
+          message,
+          isUser: true,
+          status: 'inputted',
+        },
+        {
+          id: botMessageId,
+          sender: 'bot',
+          message: '',
+          isUser: false,
+          status: 'pending',
+        },
       ];
 
       flushLogs(newLogs);
@@ -53,32 +76,41 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
           { user_id: user.id, message },
           accessToken,
           (updatedBotMessage) => {
-            messageBufferRef.current += updatedBotMessage;
             const logs = [...currentLogsRef.current];
-            const lastIdx = logs.length - 1;
-            if (logs[lastIdx]?.sender === 'bot') {
-              logs[lastIdx] = {
-                ...logs[lastIdx],
-                message: messageBufferRef.current,
+            const botMessageIndex = logs.findIndex(
+              (log) => log.id === botMessageId
+            );
+
+            if (botMessageIndex !== -1) {
+              logs[botMessageIndex] = {
+                ...logs[botMessageIndex],
+                message: updatedBotMessage,
               };
               flushLogs(logs);
             }
           },
           () => {
+            flushLogs(
+              currentLogsRef.current.map((log) =>
+                log.id === botMessageId && log.status === 'pending'
+                  ? { ...log, status: 'inputted' }
+                  : log
+              )
+            );
             setIsBotTyping(false);
           }
         );
       } catch (err) {
         console.error('Stream error:', err);
-        flushLogs([
-          ...currentLogsRef.current,
-          { sender: 'user', message, isUser: true },
-          { sender: 'bot', message: '', isUser: false },
-        ]);
+        flushLogs(
+          currentLogsRef.current.map((log) =>
+            log.id === botMessageId && log.status === 'pending'
+              ? { ...log, message: '오류가 발생했습니다.', status: 'error' }
+              : log
+          )
+        );
         setIsBotTyping(false);
       }
-    } else {
-      flushLogs([...currentLogsRef.current, { sender: 'bot', message }]);
     }
   };
 
