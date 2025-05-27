@@ -1,8 +1,9 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { flushSync } from 'react-dom';
 import { ChatMessage } from '../types/chat';
 import { sendMessageStreamAndUpdate } from '../services/chatService';
 import { useUser } from '../contexts/UserContext';
+import { v4 as uuidv4 } from 'uuid';
 
 export const useChat = () => {
   const [chatLogs, setChatLogs] = useState<ChatMessage[]>([]);
@@ -11,21 +12,26 @@ export const useChat = () => {
 
   const botMessageBuffer = useRef('');
 
-  const handleSend = async (message: string) => {
-    const token = localStorage.getItem('access_token');
-    if (!token || !user?.id || !message.trim()) return;
+  const handleSend = useCallback(
+    async (message: string) => {
+      const token = localStorage.getItem('access_token');
+      if (!token || !user?.id || !message.trim()) return;
 
-    botMessageBuffer.current = '';
+      botMessageBuffer.current = '';
 
-    setChatLogs(prev => [
-      ...prev,
-      { sender: 'user', message, isUser: true },
-      { sender: 'bot', message: '', isUser: false },
-    ]);
-    setIsBotTyping(true);
+      const newMessage: ChatMessage = {
+        id: uuidv4(),
+        sender: 'user',
+        message,
+        isUser: true,
+        status: 'inputted',
+      };
 
-    try {
-      await sendMessageStreamAndUpdate(
+      setChatLogs((prev) => [...prev, newMessage]);
+      setIsBotTyping(true);
+
+      try {
+        await sendMessageStreamAndUpdate(
           {
             user_id: user.id,
             message,
@@ -35,7 +41,7 @@ export const useChat = () => {
             botMessageBuffer.current += chunk;
 
             flushSync(() => {
-              setChatLogs(prev => {
+              setChatLogs((prev) => {
                 const updated = [...prev];
                 const lastIdx = updated.length - 1;
                 if (lastIdx >= 0 && updated[lastIdx].sender === 'bot') {
@@ -51,16 +57,22 @@ export const useChat = () => {
           () => {
             setIsBotTyping(false);
           }
-      );
-    } catch (err) {
-      console.error('Stream error:', err);
-      setChatLogs(prev => [
-        ...prev,
-        { sender: 'bot', message: 'Error occurred', isUser: false },
-      ]);
-      setIsBotTyping(false);
-    }
-  };
+        );
+      } catch (err) {
+        console.error('Stream error:', err);
+        const errorMessage: ChatMessage = {
+          id: uuidv4(),
+          sender: 'bot',
+          message: 'Error occurred',
+          isUser: false,
+          status: 'inputted',
+        };
+        setChatLogs((prev) => [...prev, errorMessage]);
+        setIsBotTyping(false);
+      }
+    },
+    [user?.id]
+  );
 
   return {
     chatLogs,

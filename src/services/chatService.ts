@@ -22,6 +22,7 @@ export const sendMessageStreamAndUpdate = async (
   const reader = response.body.getReader();
   const decoder = new TextDecoder('utf-8');
   let buffer = '';
+  let accumulatedMessage = '';
 
   try {
     while (true) {
@@ -40,11 +41,14 @@ export const sendMessageStreamAndUpdate = async (
           if (line.startsWith('data:')) {
             const content = line.slice(5);
             if (content) {
-              updateMessage(content);
-              await new Promise((resolve) => setTimeout(resolve, 10));
+              accumulatedMessage += content;
+              updateMessage(accumulatedMessage);
+              await new Promise((resolve) => setTimeout(resolve, 50));
             }
           }
         }
+      } else {
+        continue;
       }
     }
   } finally {
