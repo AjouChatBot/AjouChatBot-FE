@@ -68,6 +68,7 @@ const Login = () => {
               onSuccess={handleLoginSuccess}
               onError={handleLoginError}
               text='signin_with'
+              hosted_domain='ajou.ac.kr'
             />
           </div>
           <p className='text-base text-blue_c mt-4 text-center'>

@@ -80,6 +80,7 @@ const MobileLogin = () => {
             onSuccess={handleLoginSuccess}
             onError={handleLoginError}
             text='signin_with'
+            hosted_domain='ajou.ac.kr'
           />
         </div>
         <p className='text-sm text-mono_c mt-4 text-center'>
