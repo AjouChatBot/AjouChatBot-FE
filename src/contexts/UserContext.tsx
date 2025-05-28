@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types/user';
 import { logoutAPI } from '../services/authService';
+import { jwtDecode } from 'jwt-decode';
 
 interface UserContextType {
   user: User | null;
@@ -25,14 +26,48 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     const stored = localStorage.getItem('user');
     return stored ? JSON.parse(stored) : null;
   });
-  const [accessToken, setAccessToken] = useState<string | null>(
-      () => localStorage.getItem('access_token')
+  const [accessToken, setAccessToken] = useState<string | null>(() =>
+    localStorage.getItem('access_token')
   );
+
+  // 토큰 만료 체크 함수
+  const checkTokenExpiration = (token: string) => {
+    try {
+      const decoded = jwtDecode(token);
+      const currentTime = Date.now() / 1000;
+
+      // 토큰이 만료되었거나 만료 1분 전인 경우
+      if (decoded.exp && decoded.exp <= currentTime + 60) {
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Token decode error:', error);
+      return true;
+    }
+  };
+
+  // 세션 체크 및 자동 로그아웃
+  useEffect(() => {
+    const checkSession = () => {
+      const token = localStorage.getItem('access_token');
+      if (token && checkTokenExpiration(token)) {
+        logout();
+      }
+    };
+
+    // 1분마다 세션 체크
+    const intervalId = setInterval(checkSession, 60000);
+
+    // 컴포넌트 언마운트 시 인터벌 정리
+    return () => clearInterval(intervalId);
+  }, []);
+
   const logout = async (navigate?: (path: string) => void) => {
     try {
       const token = localStorage.getItem('access_token');
       if (token) {
-        await logoutAPI(token); // 서버에 토큰 보냄
+        await logoutAPI(token);
       }
     } catch (e) {
       console.warn('서버 로그아웃 실패', e);
@@ -42,12 +77,12 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     setAccessToken(null);
     localStorage.removeItem('user');
     localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
 
-    if(navigate) {
+    if (navigate) {
       navigate('/login');
     }
   };
-
 
   return (
     <UserContext.Provider

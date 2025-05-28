@@ -12,6 +12,7 @@ import MobileBoarding from './components/MobileBoarding';
 import MobileLogin from './pages/MobileLogin';
 import MobileHome from './pages/MobileHome';
 import MobileChat from './pages/MobileChat';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
 const App = () => {
   const location = useLocation();
@@ -37,17 +38,76 @@ const App = () => {
     <UserProvider>
       <ChatProvider>
         <Routes>
-          <Route path='/' element={<Home />} />
-          <Route path='/home' element={<Home />} />
-          <Route path='/chat' element={<Chat />} />
           <Route path='/login' element={<Login />} />
-          <Route path='/setting/account' element={<SettingAccount />} />
-          <Route path='/setting/academic' element={<SettingAcademic />} />
-          <Route path='/setting/chat' element={<SettingChat />} />
-
-          <Route path='/m/home' element={<MobileHome />} />
-          <Route path='/m/chat' element={<MobileChat />} />
           <Route path='/m/login' element={<MobileLogin />} />
+
+          {/* Protected Routes */}
+          <Route
+            path='/'
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/home'
+            element={
+              <ProtectedRoute>
+                <Home />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/chat'
+            element={
+              <ProtectedRoute>
+                <Chat />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/setting/account'
+            element={
+              <ProtectedRoute>
+                <SettingAccount />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/setting/academic'
+            element={
+              <ProtectedRoute>
+                <SettingAcademic />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/setting/chat'
+            element={
+              <ProtectedRoute>
+                <SettingChat />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Mobile Protected Routes */}
+          <Route
+            path='/m/home'
+            element={
+              <ProtectedRoute>
+                <MobileHome />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/m/chat'
+            element={
+              <ProtectedRoute>
+                <MobileChat />
+              </ProtectedRoute>
+            }
+          />
           <Route path='/m/*' element={<Navigate to='/m/home' replace />} />
         </Routes>
       </ChatProvider>

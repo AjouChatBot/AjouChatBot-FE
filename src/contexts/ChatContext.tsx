@@ -18,6 +18,7 @@ export interface ChatContextType {
     sender: 'user' | 'bot';
     message: string;
   }) => Promise<void>;
+  clearChat: () => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -114,9 +115,14 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
     }
   };
 
+  const clearChat = () => {
+    setChatLogs([]);
+    currentLogsRef.current = [];
+  };
+
   return (
     <ChatContext.Provider
-      value={{ chatLogs, setChatLogs, isBotTyping, handleSend }}
+      value={{ chatLogs, setChatLogs, isBotTyping, handleSend, clearChat }}
     >
       {children}
     </ChatContext.Provider>
