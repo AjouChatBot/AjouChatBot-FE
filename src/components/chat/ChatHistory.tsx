@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import {useLocation} from "react-router-dom";
 import TalkArea from './TalkArea';
 import BotTypingDots from './BotTypingDots.tsx';
 import Icon from '../Icons/Icon';
@@ -18,6 +19,8 @@ interface ChatHistoryProps {
 
 const ChatHistory: React.FC<ChatHistoryProps> = ({ chatLogs, isTyping }) => {
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const location = useLocation();
+  const isMobileChat = location.pathname === '/m/chat';
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -36,7 +39,12 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ chatLogs, isTyping }) => {
             {chat.sender === 'bot' && (
               <div className='flex items-center gap-2 mb-1'>
                 <Icon name='mainlogo' size={24} />
-                <p className='text-sm font-bold text-blue_a'>A.mate</p>
+                <p
+                    className={
+                      isMobileChat
+                        ? 'text-sm font-bold text-blue_a'
+                          : 'text-lg text-blue_a'
+                    }>A.mate</p>
               </div>
             )}
             <TalkArea
