@@ -5,6 +5,7 @@ import Options from '../../components/Input/Options';
 import RecentTopics from '../chat/search/RecentTopics';
 import MonthDateSelector from '../selector/MonthDateSelector';
 import { useUser } from '../../contexts/UserContext';
+import { useChat } from '../../contexts/ChatContext';
 import TypingDots from './TypingDots';
 import { updateChatSettings } from '../../services/updateChatSettingService';
 import { ChatMessage } from '../../types/chat';
@@ -18,6 +19,7 @@ interface ChatInputProps {
 
 const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
   const { user } = useUser();
+  const { clearChat } = useChat();
   const [message, setMessage] = useState('');
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [activeCount, setActiveCount] = useState(0);
@@ -26,9 +28,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
   >('none');
   const [isComposing, setIsComposing] = useState(false);
   const [toggleStates, setToggleStates] = useState({
-    question: true,
-    academicInfo: false,
-    responseLog: true,
+    question: false,
+    academicInfo: true,
+    responseLog: false,
   });
 
   const [selectedStart, setSelectedStart] = useState<Date | null>(null);
@@ -60,6 +62,10 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
     };
     setToggleStates(updatedStates);
 
+    if (key === 'question' && !toggleStates[key]) {
+      clearChat();
+    }
+
     try {
       await updateChatSettings({
         new_topic_question: updatedStates.question,
@@ -74,16 +80,55 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
   const handleSend = async () => {
     if (!message.trim()) return;
 
-    const userMessage: ChatMessage = {
-      id: uuidv4(),
-      sender: 'user',
-      message: message.trim(),
-      isUser: true,
-      status: 'inputted',
-    };
+    let userMessage: ChatMessage;
+
+    if (isDateActive && selectedStart && selectedEnd) {
+      const startDate = new Date(selectedStart);
+      const endDate = new Date(selectedEnd);
+      const formatDate = (date: Date) =>
+        `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+      userMessage = {
+        id: uuidv4(),
+        sender: 'user',
+        message: `[${formatDate(startDate)} ~ ${formatDate(endDate)}] ${message.trim()} 검색 결과`,
+        isUser: true,
+        status: 'inputted',
+      };
+    } else {
+      userMessage = {
+        id: uuidv4(),
+        sender: 'user',
+        message: message.trim(),
+        isUser: true,
+        status: 'inputted',
+      };
+    }
 
     onSend(userMessage);
     setMessage('');
+
+    if (isDateActive || isKeywordActive) {
+      setSearchMode('none');
+      setSelectedStart(null);
+      setSelectedEnd(null);
+    }
+
+    if (toggleStates.question) {
+      const updatedStates = {
+        ...toggleStates,
+        question: false,
+      };
+      setToggleStates(updatedStates);
+      try {
+        await updateChatSettings({
+          new_topic_question: false,
+          include_academic_info: updatedStates.academicInfo,
+          allow_response: updatedStates.responseLog,
+        });
+      } catch (error) {
+        console.error('채팅 설정 반영 실패:', error);
+      }
+    }
 
     if (mode === 'search') {
       try {
@@ -99,24 +144,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
           isDateActive && selectedEnd
             ? selectedEnd.toISOString().split('T')[0]
             : undefined;
-
-        const userMessageParts = [];
-        if (start_date && end_date)
-          userMessageParts.push(`${start_date} ~ ${end_date}`);
-        if (keywords?.length)
-          userMessageParts.push(`${keywords.join(', ')} 검색`);
-
-        const userMessage =
-          userMessageParts.length > 0
-            ? userMessageParts.join(' 동안 ')
-            : '검색 실행';
-        onSend({
-          id: uuidv4(),
-          sender: 'user',
-          message: userMessage,
-          isUser: true,
-          status: 'inputted',
-        });
 
         const token = localStorage.getItem('access_token');
         if (!token) throw new Error('Missing access token');
