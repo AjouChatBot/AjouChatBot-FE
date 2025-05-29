@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types/user';
 import { logoutAPI } from '../services/authService';
 import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
 
 interface UserContextType {
   user: User | null;
@@ -22,6 +23,7 @@ const UserContext = createContext<UserContextType>({
 export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(() => {
     const stored = localStorage.getItem('user');
     return stored ? JSON.parse(stored) : null;
@@ -37,7 +39,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
       const currentTime = Date.now() / 1000;
 
       // 토큰이 만료되었거나 만료 1분 전인 경우
-      if (decoded.exp && decoded.exp <= currentTime + 60) {
+      if (!decoded.exp || decoded.exp <= currentTime) {
         return true;
       }
       return false;
@@ -47,12 +49,20 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  // 초기 로드 시 토큰 체크
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (token && checkTokenExpiration(token)) {
+      logout(navigate);
+    }
+  }, []);
+
   // 세션 체크 및 자동 로그아웃
   useEffect(() => {
     const checkSession = () => {
       const token = localStorage.getItem('access_token');
       if (token && checkTokenExpiration(token)) {
-        logout();
+        logout(navigate);
       }
     };
 
@@ -61,7 +71,7 @@ export const UserProvider: React.FC<{ children: React.ReactNode }> = ({
 
     // 컴포넌트 언마운트 시 인터벌 정리
     return () => clearInterval(intervalId);
-  }, []);
+  }, [navigate]);
 
   const logout = async (navigate?: (path: string) => void) => {
     try {
