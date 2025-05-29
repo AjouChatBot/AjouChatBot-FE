@@ -29,7 +29,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
   const [isComposing, setIsComposing] = useState(false);
   const [toggleStates, setToggleStates] = useState({
     question: false,
-    academicInfo: true,
+    academicInfo: false,
     responseLog: false,
   });
 
