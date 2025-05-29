@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import {useLocation} from "react-router-dom";
+import { useLocation } from 'react-router-dom';
 import TalkArea from './TalkArea';
 import BotTypingDots from './BotTypingDots.tsx';
 import Icon from '../Icons/Icon';
@@ -27,7 +27,7 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ chatLogs, isTyping }) => {
   }, [chatLogs, isTyping]);
 
   return (
-    <div className='overflow-y-auto px-6 py-4 flex flex-col gap-3 scrollbar-hide'>
+    <div className='px-6 py-4 flex flex-col gap-3'>
       {chatLogs.map((chat) => {
         const isLastBotMessage =
           chat.sender === 'bot' &&
@@ -40,11 +40,14 @@ const ChatHistory: React.FC<ChatHistoryProps> = ({ chatLogs, isTyping }) => {
               <div className='flex items-center gap-2 mb-1'>
                 <Icon name='mainlogo' size={24} />
                 <p
-                    className={
-                      isMobileChat
-                        ? 'text-sm font-bold text-blue_a'
-                          : 'text-lg text-blue_a'
-                    }>A.mate</p>
+                  className={
+                    isMobileChat
+                      ? 'text-sm font-bold text-blue_a'
+                      : 'text-lg text-blue_a'
+                  }
+                >
+                  A.mate
+                </p>
               </div>
             )}
             <TalkArea
