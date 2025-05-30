@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import ChatInput from '../components/chat/ChatInput';
 import { useChat } from '../contexts/ChatContext';
 import Layout from '../components/layout/Layout';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
 import { ChatMessageAPIResponse } from '../types/chat';
 import ChatHistory from '../components/chat/ChatHistory';
@@ -14,8 +14,6 @@ const ChatPage: React.FC = () => {
   const { accessToken } = useUser();
   const { chatLogs, setChatLogs, isBotTyping, handleSend } = useChat();
   const bottomRef = useRef<HTMLDivElement | null>(null);
-  const location = useLocation();
-  const isMobileChat = location.pathname === '/m/chat';
 
   useEffect(() => {
     const loadChat = async () => {

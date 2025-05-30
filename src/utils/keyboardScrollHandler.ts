@@ -62,7 +62,7 @@ export const setupKeyboardScrollHandler = (
     triggerKeyboardOpen();
   };
 
-  const handleInputFocus = (e: FocusEvent) => {
+  const handleInputFocus = () => {
     handleFocus();
     onFocus?.();
   };
