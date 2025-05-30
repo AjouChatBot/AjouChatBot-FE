@@ -55,37 +55,39 @@ const MobileLogin = () => {
   }, []);
 
   return (
-    <div
-      className='w-screen min-h-screen flex flex-col px-6 py-2'
-      style={{
-        backgroundImage: 'url("/mobileloginbackground.svg")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
-    >
-      <div className='flex flex-col items-center mt-[84px]'>
-        <Icon name='amatetext_mobilelogin' size={150} />
-      </div>
+    <div className='text-black'>
+      <div
+        className='w-screen min-h-screen flex flex-col px-6 py-2'
+        style={{
+          backgroundImage: 'url("/mobileloginbackground.svg")',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div className='flex flex-col items-center mt-[84px]'>
+          <Icon name='amatetext_mobilelogin' size={150} />
+        </div>
 
-      <div className='px-6 fixed bottom-[115px] left-0 right-0 flex flex-col items-center'>
-        <div className='w-full mb-11'>
-          <div className='flex items-center mb-4'>
-            <Icon name='mainlogo' size={32} />
-            <p className='text-sm font-bold text-blue_a'>A.mate</p>
+        <div className='px-6 fixed bottom-[115px] left-0 right-0 flex flex-col items-center'>
+          <div className='w-full mb-11'>
+            <div className='flex items-center mb-4'>
+              <Icon name='mainlogo' size={32} />
+              <p className='text-sm font-bold text-blue_a'>A.mate</p>
+            </div>
+            <TalkArea message='궁금한 게 있으신가요? 편하게 질문해주세요!' />
           </div>
-          <TalkArea message='궁금한 게 있으신가요? 편하게 질문해주세요!' />
+          <div className='w-full'>
+            <GoogleLogin
+              onSuccess={handleLoginSuccess}
+              onError={handleLoginError}
+              text='signin_with'
+              hosted_domain='ajou.ac.kr'
+            />
+          </div>
+          <p className='text-sm text-mono_c mt-4 text-center'>
+            A.mate는 아주대학교 Google 계정으로 사용할 수 있어요.
+          </p>
         </div>
-        <div className='w-full'>
-          <GoogleLogin
-            onSuccess={handleLoginSuccess}
-            onError={handleLoginError}
-            text='signin_with'
-            hosted_domain='ajou.ac.kr'
-          />
-        </div>
-        <p className='text-sm text-mono_c mt-4 text-center'>
-          A.mate는 아주대학교 Google 계정으로 사용할 수 있어요.
-        </p>
       </div>
     </div>
   );
