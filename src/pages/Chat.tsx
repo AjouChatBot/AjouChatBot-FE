@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import ChatInput from '../components/chat/ChatInput';
 import { useChat } from '../contexts/ChatContext';
 import Layout from '../components/layout/Layout';
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useUser } from '../contexts/UserContext';
 import { ChatMessageAPIResponse } from '../types/chat';
 import ChatHistory from '../components/chat/ChatHistory';
@@ -14,6 +14,8 @@ const ChatPage: React.FC = () => {
   const { accessToken } = useUser();
   const { chatLogs, setChatLogs, isBotTyping, handleSend } = useChat();
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const location = useLocation();
+  const isMobileChat = location.pathname === '/m/chat';
 
   useEffect(() => {
     const loadChat = async () => {
@@ -44,15 +46,17 @@ const ChatPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className='flex flex-col w-full min-h-[calc(100vh-80px)]'>
-        <div className='absolute top-0 bottom-[330px] left-0 right-0 overflow-y-auto px-8 pt-6 scrollbar-hide'>
-          <div className='max-w-[1030px] mx-auto flex flex-col gap-4'>
-            <ChatHistory chatLogs={chatLogs} isTyping={isBotTyping} />
-            <div ref={bottomRef} className='h-[30px]' />
+      <div className='flex flex-col w-full h-[calc(100vh-80px)]'>
+        <div className='flex-1 overflow-hidden'>
+          <div className='h-[calc(100%-100px)] overflow-y-auto px-8 pt-6 pb-[300px] scrollbar-hide'>
+            <div className='max-w-[1030px] mx-auto flex flex-col gap-4'>
+              <ChatHistory chatLogs={chatLogs} isTyping={isBotTyping} />
+              <div ref={bottomRef} className='h-[30px]' />
+            </div>
           </div>
         </div>
-        <div className='absolute bottom-20 left-0 right-0 px-8 py-4 justify-center'>
-          <div className='max-w-[1030px] mx-auto justify-center'>
+        <div className='fixed bottom-0 left-0 right-0 px-8 py-4'>
+          <div className='max-w-[1030px] mx-auto'>
             <ChatInput mode='chat' onSend={handleSend} />
           </div>
         </div>
