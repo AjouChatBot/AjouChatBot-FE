@@ -13,9 +13,12 @@ const appendScrollElement = () => {
     scrollElement.style.cssText = `
       position: absolute;
       left: 0;
-      width: 1px;
+      bottom: 0;
+      width: 100%;
       height: 0;
-      transition: height 0.5s linear;
+      transition: height 0.25s ease;
+      pointer-events: none;
+      z-index: -1;
     `;
     document.body.appendChild(scrollElement);
   }
@@ -32,7 +35,7 @@ const handleFocus = () => {
   isFocus = true;
   appendScrollElement();
   if (scrollElement) {
-    scrollElement.style.height = 'calc(100% + 1px)';
+    scrollElement.style.height = '300px';
   }
   document.body.style.overflow = 'hidden';
 };
