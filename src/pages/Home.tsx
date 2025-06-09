@@ -12,7 +12,7 @@ const Home = () => {
     message: string;
   }) => {
     setChatLogs([]);
-    handleSend(chat);
+    handleSend({ ...chat, isNewTopic: true });
     navigate('/chat');
   };
 
