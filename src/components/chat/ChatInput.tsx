@@ -286,7 +286,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
                   onInput={handleInput}
                   onKeyDown={handleKeyDown}
                   ref={textareaRef}
-                  className='w-full h-[120px] p-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none'
+                  className='w-full min-h-[118px] h-full p-3 text-sm border-none outline-none resize-none bg-transparent'
                   placeholder='검색할 주제나 내용을 알려주세요'
                 />
                 <div className='mt-2 flex items-center gap-3'>
