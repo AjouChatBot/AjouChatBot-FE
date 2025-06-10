@@ -75,8 +75,11 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
     if (keywordIntervalRef.current) {
       clearInterval(keywordIntervalRef.current);
     }
+    if (keywordTimeoutRef.current) {
+      clearTimeout(keywordTimeoutRef.current);
+    }
 
-    const fetchKeywords = async () => {
+    const fetchKeywords = async (msg: string) => {
       try {
         const response = await fetch(
           `${import.meta.env.VITE_APP_API_URL}/chatbot/keyword`,
@@ -86,7 +89,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
               'Content-Type': 'application/json',
               Authorization: `Bearer ${accessToken}`,
             },
-            body: JSON.stringify({ message }),
+            body: JSON.stringify({ message: msg }),
           }
         );
 
@@ -101,11 +104,15 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
       }
     };
 
-    // Initial fetch
-    fetchKeywords();
+    fetchKeywords(message);
 
-    // Set up interval for subsequent fetches
-    keywordIntervalRef.current = setInterval(fetchKeywords, 1000);
+    keywordIntervalRef.current = setInterval(() => {
+      fetchKeywords(message);
+    }, 1500);
+
+    keywordTimeoutRef.current = setTimeout(() => {
+      stopKeywordCollection();
+    }, 10000);
   };
 
   const stopKeywordCollection = () => {
