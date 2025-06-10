@@ -48,7 +48,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
     setChatLogs(logs);
   };
 
-  const fetchKeywords = async (message: string) => {
+  const fetchKeywords = async (msg: string) => {
     if (!accessToken) return;
     try {
       const response = await fetch(
@@ -59,15 +59,18 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
             'Content-Type': 'application/json',
             Authorization: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify({ message }),
+          body: JSON.stringify({ message: msg }),
         }
       );
-      const data = await response.json();
-      if (data.keywords) {
-        setKeywords((prev) => [...new Set([...prev, ...data.keywords])]);
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch keywords');
       }
-    } catch (err) {
-      console.error('Failed to fetch keywords:', err);
+
+      const data = await response.json();
+      setKeywords(data.keywords);
+    } catch (error) {
+      console.error('Error fetching keywords:', error);
     }
   };
 
@@ -78,31 +81,6 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
     if (keywordTimeoutRef.current) {
       clearTimeout(keywordTimeoutRef.current);
     }
-
-    const fetchKeywords = async (msg: string) => {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_APP_API_URL}/chatbot/keyword`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify({ message: msg }),
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch keywords');
-        }
-
-        const data = await response.json();
-        setKeywords(data.keywords);
-      } catch (error) {
-        console.error('Error fetching keywords:', error);
-      }
-    };
 
     fetchKeywords(message);
 
