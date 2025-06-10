@@ -11,6 +11,7 @@ import { updateChatSettings } from '../../services/updateChatSettingService';
 import { ChatMessage } from '../../types/chat';
 import { searchChatbotStreamAndUpdate } from '../../services/chatService';
 import { v4 as uuidv4 } from 'uuid';
+import { useNavigate } from 'react-router-dom';
 
 interface ChatInputProps {
   mode: 'home' | 'chat' | 'search';
@@ -19,7 +20,13 @@ interface ChatInputProps {
 
 const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
   const { user } = useUser();
-  const { clearChat, startKeywordCollection } = useChat();
+  const navigate = useNavigate();
+  const {
+    clearChat,
+    startKeywordCollection,
+    chatLogs,
+    handleSend: sendMessage,
+  } = useChat();
   const [message, setMessage] = useState('');
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [activeCount, setActiveCount] = useState(0);
@@ -91,32 +98,30 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
     if (!message.trim()) return;
     setIsComposing(false);
 
-    let userMessage: ChatMessage;
+    let messageToSend: string;
+    const isNewTopic =
+      mode === 'home' || (toggleStates.question && chatLogs.length === 0);
 
     if (isDateActive && selectedStart && selectedEnd) {
       const startDate = new Date(selectedStart);
       const endDate = new Date(selectedEnd);
       const formatDate = (date: Date) =>
         `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
-      userMessage = {
-        id: uuidv4(),
-        sender: 'user',
-        message: `[${formatDate(startDate)} ~ ${formatDate(endDate)}] ${message.trim()} 검색 결과`,
-        isUser: true,
-        status: 'inputted',
-      };
+      messageToSend = `[${formatDate(startDate)} ~ ${formatDate(endDate)}] ${message.trim()} 검색 결과`;
     } else {
-      userMessage = {
-        id: uuidv4(),
-        sender: 'user',
-        message: message.trim(),
-        isUser: true,
-        status: 'inputted',
-      };
+      messageToSend = message.trim();
     }
 
-    onSend(userMessage);
+    sendMessage({
+      sender: 'user',
+      message: messageToSend,
+      isNewTopic,
+    });
     setMessage('');
+
+    if (mode === 'home') {
+      navigate('/chat');
+    }
 
     if (isDateActive || isKeywordActive) {
       setSearchMode('none');

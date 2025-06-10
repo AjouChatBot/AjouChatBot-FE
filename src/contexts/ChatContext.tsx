@@ -121,7 +121,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
       const botMessageId = uuidv4();
 
       // If it's a new topic, clear previous logs
-      if (newTopic || isNewTopic) {
+      if (newTopic) {
         currentLogsRef.current = [];
       }
 
@@ -155,7 +155,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
           {
             user_id: user.id,
             message,
-            is_new_topic: newTopic || isNewTopic,
+            is_new_topic: newTopic,
             keywords: finalKeywords,
           },
           accessToken,
