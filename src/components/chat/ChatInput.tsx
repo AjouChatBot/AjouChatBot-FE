@@ -33,7 +33,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
   const [searchMode, setSearchMode] = useState<
     'none' | 'keyword' | 'date' | 'both'
   >('none');
-  const [isComposing, setIsComposing] = useState(false);
   const [toggleStates, setToggleStates] = useState({
     question: false,
     academicInfo: false,
@@ -112,15 +111,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
     return () => clearTimeout(timer);
   }, [message, startKeywordCollectionCallback]);
 
-  const handleCompositionEnd = (
-    e: React.CompositionEvent<HTMLTextAreaElement>
-  ) => {
-    setIsComposing(false);
-  };
-
   const handleSend = async () => {
     if (!message.trim()) return;
-    setIsComposing(false);
 
     let messageToSend: string;
     const isNewTopic =
@@ -289,8 +281,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
                   onChange={handleMessageChange}
                   placeholder='검색할 주제나 내용을 알려주세요'
                   onKeyDown={handleKeyDown}
-                  onCompositionStart={() => setIsComposing(true)}
-                  onCompositionEnd={handleCompositionEnd}
                   ref={textareaRef}
                 />
                 <div className='mt-2 flex items-center gap-3'>
