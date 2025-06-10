@@ -12,6 +12,7 @@ import { ChatMessage } from '../../types/chat';
 import { searchChatbotStreamAndUpdate } from '../../services/chatService';
 import { v4 as uuidv4 } from 'uuid';
 import { useNavigate } from 'react-router-dom';
+import Tag from '../../components/common/Tag';
 
 interface ChatInputProps {
   mode: 'home' | 'chat' | 'search';
@@ -26,6 +27,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
     startKeywordCollection,
     chatLogs,
     handleSend: sendMessage,
+    keywords,
   } = useChat();
   const [message, setMessage] = useState('');
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
@@ -286,6 +288,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
                 <div className='mt-2 flex items-center gap-3'>
                   <span className='text-xs text-gray-500'>인식한 키워드</span>
                   {message.trim().length > 0 && <TypingDots />}
+                  {keywords.length > 0 && (
+                    <div className='flex gap-2'>
+                      {keywords.map((keyword: string, index: number) => (
+                        <Tag key={index} tagtext={keyword} />
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
