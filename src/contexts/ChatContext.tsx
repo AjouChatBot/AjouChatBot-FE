@@ -21,8 +21,8 @@ export interface ChatContextType {
     isNewTopic?: boolean;
   }) => Promise<void>;
   clearChat: () => void;
-  keywords: string[];
-  setKeywords: React.Dispatch<React.SetStateAction<string[]>>;
+  category: string;
+  setCategory: React.Dispatch<React.SetStateAction<string>>;
   isNewTopic: boolean;
   setIsNewTopic: React.Dispatch<React.SetStateAction<boolean>>;
   startKeywordCollection: (message: string) => void;
@@ -35,7 +35,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
   const [chatLogs, setChatLogs] = useState<ChatMessage[]>([]);
   const [isBotTyping, setIsBotTyping] = useState(false);
-  const [keywords, setKeywords] = useState<string[]>([]);
+  const [category, setCategory] = useState<string>('');
   const [isNewTopic, setIsNewTopic] = useState(false);
   const currentLogsRef = useRef<ChatMessage[]>([]);
   const keywordIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -66,7 +66,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
       }
 
       const data = await response.json();
-      setKeywords(data.keywords);
+      setCategory(data.category);
     } catch (error) {
       console.error('Error fetching keywords:', error);
     }
@@ -125,7 +125,6 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
 
       // Stop collecting keywords before sending message
       stopKeywordCollection();
-      const finalKeywords = [...keywords];
 
       const newLogs: ChatMessage[] = [
         ...currentLogsRef.current,
@@ -154,7 +153,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
             user_id: user.id,
             message,
             is_new_topic: newTopic,
-            keywords: finalKeywords,
+            category,
           },
           accessToken,
           (updatedBotMessage) => {
@@ -180,8 +179,6 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
               )
             );
             setIsBotTyping(false);
-            // Clear keywords for next message
-            setKeywords([]);
           }
         );
       } catch (err) {
@@ -194,7 +191,6 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
           )
         );
         setIsBotTyping(false);
-        setKeywords([]);
       }
     }
   };
@@ -202,7 +198,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
   const clearChat = () => {
     setChatLogs([]);
     currentLogsRef.current = [];
-    setKeywords([]);
+    setCategory('');
     stopKeywordCollection();
   };
 
@@ -221,8 +217,8 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
         isBotTyping,
         handleSend,
         clearChat,
-        keywords,
-        setKeywords,
+        category,
+        setCategory,
         isNewTopic,
         setIsNewTopic,
         startKeywordCollection,
