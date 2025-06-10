@@ -52,7 +52,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
     if (!accessToken) return;
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_APP_API_URL}/chatbot/keyword`,
+        `${import.meta.env.VITE_APP_API_URL}/ai/keyword`,
         {
           method: 'POST',
           headers: {
