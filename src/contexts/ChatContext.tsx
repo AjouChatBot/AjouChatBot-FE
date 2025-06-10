@@ -49,7 +49,6 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const fetchKeywords = async (msg: string) => {
-    if (!accessToken) return;
     try {
       const response = await fetch(
         `${import.meta.env.VITE_APP_AI_URL}/keyword`,
@@ -57,9 +56,8 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify({ message: msg }),
+          body: JSON.stringify({ text: msg }),
         }
       );
 
