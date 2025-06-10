@@ -49,16 +49,17 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const fetchKeywords = async (msg: string) => {
-    if (!accessToken) return;
     try {
-      const response = await fetch(`/ai/keyword`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({ message: msg }),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_APP_AI_URL}/keyword`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ text: msg }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error('Failed to fetch keywords');
