@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Button from '../../components/common/Button';
 import Icon from '../../components/Icons/Icon';
 import Options from '../../components/Input/Options';
@@ -50,6 +50,14 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
     (mode === 'chat' && (searchMode === 'none' || isKeywordActive));
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const timestamp = useRef<number>(0);
+
+  const startKeywordCollectionCallback = useCallback(
+    (msg: string) => {
+      startKeywordCollection(msg);
+    },
+    [startKeywordCollection]
+  );
 
   useEffect(() => {
     setActiveCount(Object.values(toggleStates).filter(Boolean).length);
@@ -87,21 +95,27 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
   const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newMessage = e.target.value;
     setMessage(newMessage);
-
-    if (!isComposing && newMessage.trim()) {
-      setIsComposing(true);
-      startKeywordCollection(newMessage);
-    }
   };
+
+  useEffect(() => {
+    if (!message.trim()) return;
+
+    const inputted_time = new Date().getTime();
+    timestamp.current = inputted_time;
+
+    const timer = setTimeout(() => {
+      if (timestamp.current === inputted_time) {
+        startKeywordCollectionCallback(message.trim());
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [message, startKeywordCollectionCallback]);
 
   const handleCompositionEnd = (
     e: React.CompositionEvent<HTMLTextAreaElement>
   ) => {
     setIsComposing(false);
-    const newMessage = e.currentTarget.value;
-    if (newMessage.trim()) {
-      startKeywordCollection(newMessage);
-    }
   };
 
   const handleSend = async () => {
