@@ -196,6 +196,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
   const toggleSearchMode = (targetMode: 'keyword' | 'date') => {
     setSearchMode((prev) => {
       if (mode === 'home') return prev === targetMode ? 'none' : targetMode;
@@ -252,13 +259,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
                   value={message}
                   onChange={handleMessageChange}
                   placeholder='검색할 주제나 내용을 알려주세요'
-                  onKeyDown={(e) => {
-                    if (isComposing) return;
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSend();
-                    }
-                  }}
+                  onKeyDown={handleKeyDown}
                   onCompositionStart={() => setIsComposing(true)}
                   onCompositionEnd={() => setIsComposing(false)}
                   ref={textareaRef}
