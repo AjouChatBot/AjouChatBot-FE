@@ -244,6 +244,25 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
   };
 
   const buttonLabel = isKeywordActive || isDateActive ? '찾아보기' : '물어보기';
+
+  const handleCompositionEnd = (
+    e: React.CompositionEvent<HTMLTextAreaElement>
+  ) => {
+    const textarea = e.currentTarget;
+    const value = textarea.value;
+    const cursorPosition = textarea.selectionStart;
+
+    // 현재 입력된 텍스트가 이전 상태와 다를 때만 상태 업데이트
+    if (value !== message) {
+      setMessage(value);
+      // 커서 위치 복원
+      setTimeout(() => {
+        textarea.selectionStart = cursorPosition;
+        textarea.selectionEnd = cursorPosition;
+      }, 0);
+    }
+  };
+
   return (
     <div className='w-full flex flex-col relative justify-center items-center'>
       {mode === 'home' && !isKeywordActive && (
@@ -283,6 +302,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
                   onChange={handleMessageChange}
                   placeholder='검색할 주제나 내용을 알려주세요'
                   onKeyDown={handleKeyDown}
+                  onCompositionEnd={handleCompositionEnd}
                   ref={textareaRef}
                 />
                 <div className='mt-2 flex items-center gap-3'>
