@@ -94,6 +94,16 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
     }
   };
 
+  const handleCompositionEnd = (
+    e: React.CompositionEvent<HTMLTextAreaElement>
+  ) => {
+    setIsComposing(false);
+    const newMessage = e.currentTarget.value;
+    if (newMessage.trim()) {
+      startKeywordCollection(newMessage);
+    }
+  };
+
   const handleSend = async () => {
     if (!message.trim()) return;
     setIsComposing(false);
@@ -266,7 +276,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
                   placeholder='검색할 주제나 내용을 알려주세요'
                   onKeyDown={handleKeyDown}
                   onCompositionStart={() => setIsComposing(true)}
-                  onCompositionEnd={() => setIsComposing(false)}
+                  onCompositionEnd={handleCompositionEnd}
                   ref={textareaRef}
                 />
                 <div className='mt-2 flex items-center gap-3'>
