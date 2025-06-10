@@ -5,30 +5,30 @@ interface SettingBlockProps {
   title: string;
   description?: string;
   toggle?: boolean;
+  arrow?: boolean;
   isOn?: boolean;
   onToggle?: () => void;
-  disabled?: boolean;
-  arrow?: boolean;
-  onClick?: () => void;
   danger?: boolean;
+  onClick?: () => void;
+  loading?: boolean;
 }
 
 const SettingBlock: React.FC<SettingBlockProps> = ({
   title,
   description,
   toggle,
+  arrow,
   isOn,
   onToggle,
-  disabled,
-  arrow,
-  onClick,
   danger,
+  onClick,
+  loading,
 }) => {
   return (
     <div
       className={`w-full px-4 py-4 bg-white bg-opacity-50 rounded-xl flex items-center justify-between cursor-pointer ${
-        disabled ? 'opacity-40 pointer-events-none' : ''
-      } ${danger ? 'text-red-500 border border-mono_e' : ''}`}
+        danger ? 'text-red-500 border border-mono_e' : ''
+      }`}
       onClick={onClick}
     >
       <div className='flex flex-col'>
@@ -42,16 +42,23 @@ const SettingBlock: React.FC<SettingBlockProps> = ({
         )}
       </div>
 
-      {toggle && typeof isOn === 'boolean' && onToggle && (
-        <ToggleSwitch isOn={isOn} onToggle={onToggle} />
-      )}
-
-      {arrow && !toggle && (
-        <Icon
-          name={danger ? 'rightarrowicon_red' : 'rightarrowicon_gray'}
-          size={24}
-        />
-      )}
+      <div className='flex items-center gap-2'>
+        {loading ? (
+          <div className='w-5 h-5 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin' />
+        ) : (
+          <>
+            {toggle && typeof isOn === 'boolean' && onToggle && (
+              <ToggleSwitch isOn={isOn} onToggle={onToggle} />
+            )}
+            {arrow && (
+              <Icon
+                name={danger ? 'rightarrowicon_red' : 'rightarrowicon_gray'}
+                size={24}
+              />
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 };
