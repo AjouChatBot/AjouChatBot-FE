@@ -4,6 +4,7 @@ export interface ChatMessage {
   message: string;
   isUser?: boolean;
   status?: 'inputted' | 'pending' | 'error';
+  isNewTopic?: boolean;
 }
 
 export interface ChatPayload {
