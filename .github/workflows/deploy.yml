@@ -17,6 +17,7 @@ jobs:
         run: |
           echo "ENV_MODE=production" >> .env
           echo "VITE_APP_API_URL=${{ secrets.VITE_APP_API_URL }}" >> .env
+          echo "VITE_APP_AI_URL=${{ secrets.VITE_APP_AI_URL }}" >> .env
           echo "VITE_GOOGLE_CLIENT_ID=${{ secrets.VITE_GOOGLE_CLIENT_ID }}" >> .env
         
       -
