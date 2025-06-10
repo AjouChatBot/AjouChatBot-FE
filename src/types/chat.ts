@@ -11,7 +11,7 @@ export interface ChatPayload {
   user_id: string;
   message: string;
   is_new_topic?: boolean;
-  keywords?: string[];
+  category?: string;
 }
 
 export interface RecentTopic {

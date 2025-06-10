@@ -27,7 +27,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
     startKeywordCollection,
     chatLogs,
     handleSend: sendMessage,
-    keywords,
+    category,
   } = useChat();
   const [message, setMessage] = useState('');
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
@@ -288,11 +288,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
                 <div className='mt-2 flex items-center gap-3'>
                   <span className='text-xs text-gray-500'>인식한 키워드</span>
                   {message.trim().length > 0 && <TypingDots />}
-                  {keywords.length > 0 && (
+                  {category && (
                     <div className='flex gap-2'>
-                      {keywords.map((keyword: string, index: number) => (
-                        <Tag key={index} tagtext={keyword} />
-                      ))}
+                      <Tag tagtext={category} />
                     </div>
                   )}
                 </div>
