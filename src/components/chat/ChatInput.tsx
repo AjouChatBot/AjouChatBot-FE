@@ -29,7 +29,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
     handleSend: sendMessage,
     category,
   } = useChat();
-  const [message, setMessage] = useState('');
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [activeCount, setActiveCount] = useState(0);
   const [searchMode, setSearchMode] = useState<
@@ -53,6 +52,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const timestamp = useRef<number>(0);
 
+  const [input, setInput] = useState('');
+
   const startKeywordCollectionCallback = useCallback(
     (msg: string) => {
       startKeywordCollection(msg);
@@ -69,7 +70,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
       textareaRef.current.style.height = 'auto';
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
     }
-  }, [message]);
+  }, [input]);
 
   const handleToggle = async (key: keyof typeof toggleStates) => {
     const updatedStates = {
@@ -93,136 +94,138 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
     }
   };
 
-  const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newMessage = e.target.value;
-    setMessage(newMessage);
-  };
-
   useEffect(() => {
-    if (!message.trim()) return;
+    if (!input.trim()) return;
 
     const inputted_time = new Date().getTime();
     timestamp.current = inputted_time;
 
     const timer = setTimeout(() => {
       if (timestamp.current === inputted_time) {
-        startKeywordCollectionCallback(message.trim());
+        startKeywordCollectionCallback(input.trim());
       }
     }, 500);
 
     return () => clearTimeout(timer);
-  }, [message, startKeywordCollectionCallback]);
+  }, [input, startKeywordCollectionCallback]);
 
-  const handleSend = async () => {
-    if (!message.trim()) return;
-
-    let messageToSend: string;
-    const isNewTopic =
-      mode === 'home' || (toggleStates.question && chatLogs.length === 0);
-
-    if (isDateActive && selectedStart && selectedEnd) {
-      const startDate = new Date(selectedStart);
-      const endDate = new Date(selectedEnd);
-      const formatDate = (date: Date) =>
-        `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
-      messageToSend = `[${formatDate(startDate)} ~ ${formatDate(endDate)}] ${message.trim()} 검색 결과`;
-    } else {
-      messageToSend = message.trim();
-    }
-
-    sendMessage({
-      sender: 'user',
-      message: messageToSend,
-      isNewTopic,
-    });
-    setMessage('');
-
-    if (mode === 'home') {
-      navigate('/chat');
-    }
-
-    if (isDateActive || isKeywordActive) {
-      setSearchMode('none');
-      setSelectedStart(null);
-      setSelectedEnd(null);
-    }
-
-    if (toggleStates.question) {
-      const updatedStates = {
-        ...toggleStates,
-        question: false,
-      };
-      setToggleStates(updatedStates);
-      try {
-        await updateChatSettings({
-          new_topic_question: false,
-          include_academic_info: updatedStates.academicInfo,
-          allow_response: updatedStates.responseLog,
-        });
-      } catch (error) {
-        console.error('채팅 설정 반영 실패:', error);
-      }
-    }
-
-    if (mode === 'search') {
-      try {
-        const query = message.trim();
-        const keywords = isKeywordActive
-          ? extractKeywordsFromMessage(query)
-          : undefined;
-        const start_date =
-          isDateActive && selectedStart
-            ? selectedStart.toISOString().split('T')[0]
-            : undefined;
-        const end_date =
-          isDateActive && selectedEnd
-            ? selectedEnd.toISOString().split('T')[0]
-            : undefined;
-
-        const token = localStorage.getItem('access_token');
-        if (!token) throw new Error('Missing access token');
-
-        await searchChatbotStreamAndUpdate(
-          {
-            query: query.length > 0 ? query : undefined,
-            keywords,
-            start_date,
-            end_date,
-          },
-          token,
-          (msg) => {
-            onSend({
-              id: uuidv4(),
-              sender: 'bot',
-              message: msg,
-              isUser: false,
-              status: 'inputted',
-            });
-          },
-          () => {
-            setSearchMode('none');
-            setSelectedStart(null);
-            setSelectedEnd(null);
-            setMessage('');
-          }
-        );
-      } catch (error) {
-        console.error('검색 실패:', error);
-        onSend({
-          id: uuidv4(),
-          sender: 'bot',
-          message: '검색 중 오류가 발생했습니다.',
-          isUser: false,
-          status: 'inputted',
-        });
-      }
-    }
+  const handleInput = (e: React.FormEvent<HTMLTextAreaElement>) => {
+    const value = e.currentTarget.value;
+    setInput(value);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      if (input.trim()) {
+        handleSend();
+      }
+    }
+  };
+
+  const handleSend = async () => {
+    if (input.trim()) {
+      let messageToSend: string;
+      const isNewTopic =
+        mode === 'home' || (toggleStates.question && chatLogs.length === 0);
+
+      if (isDateActive && selectedStart && selectedEnd) {
+        const startDate = new Date(selectedStart);
+        const endDate = new Date(selectedEnd);
+        const formatDate = (date: Date) =>
+          `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일`;
+        messageToSend = `[${formatDate(startDate)} ~ ${formatDate(endDate)}] ${input.trim()} 검색 결과`;
+      } else {
+        messageToSend = input.trim();
+      }
+
+      sendMessage({
+        sender: 'user',
+        message: messageToSend,
+        isNewTopic,
+      });
+      setInput('');
+
+      if (mode === 'home') {
+        navigate('/chat');
+      }
+
+      if (isDateActive || isKeywordActive) {
+        setSearchMode('none');
+        setSelectedStart(null);
+        setSelectedEnd(null);
+      }
+
+      if (toggleStates.question) {
+        const updatedStates = {
+          ...toggleStates,
+          question: false,
+        };
+        setToggleStates(updatedStates);
+        try {
+          await updateChatSettings({
+            new_topic_question: false,
+            include_academic_info: updatedStates.academicInfo,
+            allow_response: updatedStates.responseLog,
+          });
+        } catch (error) {
+          console.error('채팅 설정 반영 실패:', error);
+        }
+      }
+
+      if (mode === 'search') {
+        try {
+          const query = input.trim();
+          const keywords = isKeywordActive
+            ? extractKeywordsFromMessage(query)
+            : undefined;
+          const start_date =
+            isDateActive && selectedStart
+              ? selectedStart.toISOString().split('T')[0]
+              : undefined;
+          const end_date =
+            isDateActive && selectedEnd
+              ? selectedEnd.toISOString().split('T')[0]
+              : undefined;
+
+          const token = localStorage.getItem('access_token');
+          if (!token) throw new Error('Missing access token');
+
+          await searchChatbotStreamAndUpdate(
+            {
+              query: query.length > 0 ? query : undefined,
+              keywords,
+              start_date,
+              end_date,
+            },
+            token,
+            (msg) => {
+              onSend({
+                id: uuidv4(),
+                sender: 'bot',
+                message: msg,
+                isUser: false,
+                status: 'inputted',
+              });
+            },
+            () => {
+              setSearchMode('none');
+              setSelectedStart(null);
+              setSelectedEnd(null);
+              setInput('');
+            }
+          );
+        } catch (error) {
+          console.error('검색 실패:', error);
+          onSend({
+            id: uuidv4(),
+            sender: 'bot',
+            message: '검색 중 오류가 발생했습니다.',
+            isUser: false,
+            status: 'inputted',
+          });
+        }
+      }
     }
   };
 
@@ -244,24 +247,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
   };
 
   const buttonLabel = isKeywordActive || isDateActive ? '찾아보기' : '물어보기';
-
-  const handleCompositionEnd = (
-    e: React.CompositionEvent<HTMLTextAreaElement>
-  ) => {
-    const textarea = e.currentTarget;
-    const value = textarea.value;
-    const cursorPosition = textarea.selectionStart;
-
-    // 현재 입력된 텍스트가 이전 상태와 다를 때만 상태 업데이트
-    if (value !== message) {
-      setMessage(value);
-      // 커서 위치 복원
-      setTimeout(() => {
-        textarea.selectionStart = cursorPosition;
-        textarea.selectionEnd = cursorPosition;
-      }, 0);
-    }
-  };
 
   return (
     <div className='w-full flex flex-col relative justify-center items-center'>
@@ -291,23 +276,22 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
           <div className='w-full min-h-[166px] flex flex-col justify-between'>
             {isKeywordActive && (
               <div className='w-full mb-4'>
-                <RecentTopics onSelect={(topic) => setMessage(topic)} />
+                <RecentTopics onSelect={(topic) => setInput(topic)} />
               </div>
             )}
             {isTextareaVisible && (
               <div className='w-full p-4 bg-white rounded-2xl border border-mono_e h-full flex flex-col justify-between'>
                 <textarea
-                  className='w-full min-h-[118px] h-full p-3 text-sm border-none outline-none resize-none bg-transparent'
-                  value={message}
-                  onChange={handleMessageChange}
-                  placeholder='검색할 주제나 내용을 알려주세요'
+                  value={input}
+                  onInput={handleInput}
                   onKeyDown={handleKeyDown}
-                  onCompositionEnd={handleCompositionEnd}
                   ref={textareaRef}
+                  className='w-full h-[120px] p-4 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none'
+                  placeholder='검색할 주제나 내용을 알려주세요'
                 />
                 <div className='mt-2 flex items-center gap-3'>
                   <span className='text-xs text-gray-500'>인식한 키워드</span>
-                  {message.trim().length > 0 && <TypingDots />}
+                  {input.trim().length > 0 && <TypingDots />}
                   {category && (
                     <div className='flex gap-2'>
                       <Tag tagtext={category} />
