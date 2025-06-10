@@ -25,6 +25,7 @@ export interface ChatContextType {
   setKeywords: React.Dispatch<React.SetStateAction<string[]>>;
   isNewTopic: boolean;
   setIsNewTopic: React.Dispatch<React.SetStateAction<boolean>>;
+  startKeywordCollection: (message: string) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -37,7 +38,8 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
   const [keywords, setKeywords] = useState<string[]>([]);
   const [isNewTopic, setIsNewTopic] = useState(false);
   const currentLogsRef = useRef<ChatMessage[]>([]);
-  const keywordsIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const keywordIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const keywordTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const { user, accessToken } = useUser();
 
@@ -70,24 +72,50 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const startKeywordCollection = (message: string) => {
-    // Clear any existing interval
-    if (keywordsIntervalRef.current) {
-      clearInterval(keywordsIntervalRef.current);
+    if (keywordIntervalRef.current) {
+      clearInterval(keywordIntervalRef.current);
     }
 
-    // Clear existing keywords
-    setKeywords([]);
+    const fetchKeywords = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_APP_API_URL}/chatbot/keyword`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({ message }),
+          }
+        );
 
-    // Start new interval
-    keywordsIntervalRef.current = setInterval(() => {
-      fetchKeywords(message);
-    }, 3000); // Fetch keywords every 3 seconds
+        if (!response.ok) {
+          throw new Error('Failed to fetch keywords');
+        }
+
+        const data = await response.json();
+        setKeywords(data.keywords);
+      } catch (error) {
+        console.error('Error fetching keywords:', error);
+      }
+    };
+
+    // Initial fetch
+    fetchKeywords();
+
+    // Set up interval for subsequent fetches
+    keywordIntervalRef.current = setInterval(fetchKeywords, 1000);
   };
 
   const stopKeywordCollection = () => {
-    if (keywordsIntervalRef.current) {
-      clearInterval(keywordsIntervalRef.current);
-      keywordsIntervalRef.current = null;
+    if (keywordIntervalRef.current) {
+      clearInterval(keywordIntervalRef.current);
+      keywordIntervalRef.current = null;
+    }
+    if (keywordTimeoutRef.current) {
+      clearTimeout(keywordTimeoutRef.current);
+      keywordTimeoutRef.current = null;
     }
   };
 
@@ -106,6 +134,15 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
     if (sender === 'user') {
       const userMessageId = uuidv4();
       const botMessageId = uuidv4();
+
+      // If it's a new topic, clear previous logs
+      if (newTopic || isNewTopic) {
+        currentLogsRef.current = [];
+      }
+
+      // Stop collecting keywords before sending message
+      stopKeywordCollection();
+      const finalKeywords = [...keywords];
 
       const newLogs: ChatMessage[] = [
         ...currentLogsRef.current,
@@ -128,16 +165,13 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
       flushLogs(newLogs);
       setIsBotTyping(true);
 
-      // Start collecting keywords
-      startKeywordCollection(message);
-
       try {
         await sendMessageStreamAndUpdate(
           {
             user_id: user.id,
             message,
             is_new_topic: newTopic || isNewTopic,
-            keywords: keywords,
+            keywords: finalKeywords,
           },
           accessToken,
           (updatedBotMessage) => {
@@ -163,8 +197,6 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
               )
             );
             setIsBotTyping(false);
-            // Stop collecting keywords after response
-            stopKeywordCollection();
             // Clear keywords for next message
             setKeywords([]);
           }
@@ -179,7 +211,6 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
           )
         );
         setIsBotTyping(false);
-        stopKeywordCollection();
         setKeywords([]);
       }
     }
@@ -195,9 +226,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (keywordsIntervalRef.current) {
-        clearInterval(keywordsIntervalRef.current);
-      }
+      stopKeywordCollection();
     };
   }, []);
 
@@ -213,6 +242,7 @@ export const ChatProvider: React.FC<{ children: ReactNode }> = ({
         setKeywords,
         isNewTopic,
         setIsNewTopic,
+        startKeywordCollection,
       }}
     >
       {children}

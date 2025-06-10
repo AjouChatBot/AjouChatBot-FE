@@ -19,7 +19,7 @@ interface ChatInputProps {
 
 const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
   const { user } = useUser();
-  const { clearChat } = useChat();
+  const { clearChat, startKeywordCollection } = useChat();
   const [message, setMessage] = useState('');
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [activeCount, setActiveCount] = useState(0);
@@ -77,8 +77,19 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
     }
   };
 
+  const handleMessageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const newMessage = e.target.value;
+    setMessage(newMessage);
+
+    if (!isComposing && newMessage.trim()) {
+      setIsComposing(true);
+      startKeywordCollection(newMessage);
+    }
+  };
+
   const handleSend = async () => {
     if (!message.trim()) return;
+    setIsComposing(false);
 
     let userMessage: ChatMessage;
 
@@ -216,7 +227,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
       )}
 
       {isOptionsOpen && (
-        <div className='absolute top-16 left-6 w-64 z-50 bg-white border border-gray-300 rounded-lg shadow-lg'>
+        <div className='absolute left-6 bottom-12 w-64 z-50 bg-white border border-gray-300 rounded-lg shadow-lg'>
           <Options
             toggleStates={toggleStates}
             onToggleChange={handleToggle}
@@ -239,14 +250,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ mode, onSend }) => {
                 <textarea
                   className='w-full min-h-[118px] h-full p-3 text-sm border-none outline-none resize-none bg-transparent'
                   value={message}
-                  onChange={(e) => setMessage(e.target.value)}
+                  onChange={handleMessageChange}
                   placeholder='검색할 주제나 내용을 알려주세요'
                   onKeyDown={(e) => {
                     if (isComposing) return;
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
-                      if (isKeywordActive || isDateActive) handleSend();
-                      else handleSend();
+                      handleSend();
                     }
                   }}
                   onCompositionStart={() => setIsComposing(true)}

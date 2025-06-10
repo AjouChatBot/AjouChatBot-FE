@@ -8,12 +8,14 @@ import { ChatMessageAPIResponse } from '../types/chat';
 import ChatHistory from '../components/chat/ChatHistory';
 import { fetchConversation } from '../services/fetchConversationService.ts.ts';
 import { v4 as uuidv4 } from 'uuid';
+import { useNavigate } from 'react-router-dom';
 
 const ChatPage: React.FC = () => {
   const { conversation_id } = useParams();
   const { accessToken } = useUser();
   const { chatLogs, setChatLogs, isBotTyping, handleSend } = useChat();
   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loadChat = async () => {
@@ -42,6 +44,15 @@ const ChatPage: React.FC = () => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatLogs, isBotTyping]);
 
+  const handleMessageSend = (chat: {
+    sender: 'user' | 'bot';
+    message: string;
+  }) => {
+    setChatLogs([]);
+    handleSend({ ...chat, isNewTopic: true });
+    navigate('/chat');
+  };
+
   return (
     <Layout>
       <div className='flex flex-col w-full h-[calc(100vh-80px)]'>
@@ -55,7 +66,7 @@ const ChatPage: React.FC = () => {
         </div>
         <div className='fixed bottom-0 left-0 right-0 px-8 py-4'>
           <div className='max-w-[1030px] mx-auto'>
-            <ChatInput mode='chat' onSend={handleSend} />
+            <ChatInput mode='chat' onSend={handleMessageSend} />
           </div>
         </div>
       </div>

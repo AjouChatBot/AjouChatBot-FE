@@ -1,33 +1,61 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Layout from '../components/layout/Layout';
 import SettingBlock from '../components/setting/SettingBlock';
 import SettingSidebar from '../components/setting/SettingSidebar';
 import SettingTitle from '../components/setting/SettingTitle';
-import { deleteCustomUserData } from '../services/collectedDataService';
+import {
+  deleteCustomUserData,
+  getUserDataCollectionSettings,
+  updateUserDataCollectionSettings,
+} from '../services/collectedDataService';
 
 const SettingChat = () => {
+  const navigate = useNavigate();
   const [toggleStates, setToggleStates] = useState({
     grade: false,
   });
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleToggle = (key: keyof typeof toggleStates) => {
-    setToggleStates((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const trackEnabled = await getUserDataCollectionSettings();
+        setToggleStates((prev) => ({
+          ...prev,
+          grade: trackEnabled,
+        }));
+      } catch (error) {
+        console.error('Error fetching user data collection settings:', error);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
+  const handleToggle = async (key: keyof typeof toggleStates) => {
+    try {
+      const newValue = !toggleStates[key];
+      await updateUserDataCollectionSettings(newValue);
+      setToggleStates((prev) => ({
+        ...prev,
+        [key]: newValue,
+      }));
+    } catch (error) {
+      console.error('Error updating user data collection settings:', error);
+    }
   };
 
   const handleDeleteData = async () => {
     try {
-      const res = await deleteCustomUserData();
-      if (res.status === 'success') {
-        alert(res.message);
-      } else {
-        alert(res.message);
-      }
+      setIsDeleting(true);
+      await deleteCustomUserData();
+      setTimeout(() => {
+        navigate('/home');
+      }, 1500);
     } catch (error) {
-      alert('초기화 요청 중 오류가 발생했습니다.');
       console.error(error);
+      setIsDeleting(false);
     }
   };
 
@@ -46,9 +74,10 @@ const SettingChat = () => {
             />
             <SettingBlock
               title='A.mate 맞춤형 수집데이터 초기화'
-              arrow={true}
-              danger={true}
+              arrow={!isDeleting}
+              danger={!isDeleting}
               onClick={handleDeleteData}
+              loading={isDeleting}
             />
           </div>
         </div>

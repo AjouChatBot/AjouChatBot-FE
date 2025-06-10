@@ -1,9 +1,9 @@
 import apiClient from './apiClient';
 
 export interface AcademicInfoResponseData {
-  auto_collect: boolean;
-  use_academic_info: boolean;
-  allowed_categories: {
+  autoCollect: boolean;
+  useAcademicInfo: boolean;
+  allowedCategories: {
     enrollment_info: boolean;
     admission_info: boolean;
     course_info: boolean;
