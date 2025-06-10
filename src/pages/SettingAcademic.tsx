@@ -1,10 +1,10 @@
+import { useState, useEffect } from 'react';
 import Layout from '../components/layout/Layout';
 import SettingBlock from '../components/setting/SettingBlock';
 import SettingFileBlock from '../components/setting/SettingFileBlock';
 import SettingLine from '../components/setting/SettingLine';
 import SettingSidebar from '../components/setting/SettingSidebar';
 import SettingTitle from '../components/setting/SettingTitle';
-import { useEffect, useState } from 'react';
 import { updateAcademicInfoSettings } from '../services/updateAcademicInfoService';
 import { useAcademicSettings } from '../stores/academicSettingStore';
 import { getAcademicInfoSettings } from '../services/getAcademicInfoService';
@@ -18,13 +18,13 @@ const SettingAcademic = () => {
       try {
         const data = await getAcademicInfoSettings();
         setAllToggles({
-          agree: data.use_academic_info,
-          auto: data.auto_collect,
-          enrollment: data.allowed_categories.enrollment_info,
-          admission: data.allowed_categories.admission_info,
-          course: data.allowed_categories.course_info,
-          grade: data.allowed_categories.grade_info,
-          registration: data.allowed_categories.registration_info,
+          agree: data.useAcademicInfo,
+          auto: data.autoCollect,
+          enrollment: data.allowedCategories.enrollment_info,
+          admission: data.allowedCategories.admission_info,
+          course: data.allowedCategories.course_info,
+          grade: data.allowedCategories.grade_info,
+          registration: data.allowedCategories.registration_info,
         });
       } catch (err) {
         console.error('초기 설정 불러오기 실패:', err);
@@ -133,13 +133,18 @@ const SettingAcademic = () => {
                   onToggle={() => handleToggle('grade')}
                 />
               </div>
-              <SettingBlock
-                title='수강신청정보'
-                description='차기 예정학기 수강신청 내역'
-                toggle
-                isOn={toggleStates.registration}
-                onToggle={() => handleToggle('registration')}
-              />
+            </div>
+            <div className='mt-9'>
+              <SettingLine text='수강신청정보' />
+              <div className='mt-6'>
+                <SettingBlock
+                  title='수강신청정보'
+                  description='차기 예정학기 수강신청 내역'
+                  toggle
+                  isOn={toggleStates.registration}
+                  onToggle={() => handleToggle('registration')}
+                />
+              </div>
             </div>
           </div>
           {showFileModal && (
