@@ -36,7 +36,7 @@ const Layout = ({ children }: LayoutProps) => {
       }}
     >
       {!isLoginPage && (isMainHeaderPage ? <MainHeader /> : <SubHeader />)}
-      <main className='flex-1 relative flex flex-col items-center jusify-center'>{children}</main>
+      <main className='flex-1 relative flex flex-col items-center justify-center'>{children}</main>
     </div>
   );
 };
